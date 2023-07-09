@@ -228,7 +228,6 @@
                     </div>
                   </div>
                 </div>
-                <!-- END: Display Item -->
               </div>
 
               <!-- BEGIN: Detail BarangKeluar -->
