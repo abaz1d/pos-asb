@@ -791,10 +791,14 @@ const reInitOnResizeWindow = () => {
 };
 
 const getImgUrl = (gambar_varian) => {
-  var images = gambar_varian.data.map((b) => String.fromCharCode(b)).join("");
-  var image = new URL(`${publicPath}gambar/${images}`).href;
+  if (gambar_varian) {
+    var images = gambar_varian.data.map((b) => String.fromCharCode(b)).join("");
+    var image = new URL(`${publicPath}gambar/${images}`).href;
 
-  return image;
+    return image;
+  } else {
+    return `${new URL(window.location.origin)}` + "404.png";
+  }
 };
 const editorData = ref("");
 const simpanNotepad = async () => {

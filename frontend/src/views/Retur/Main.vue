@@ -710,7 +710,7 @@ const getImgUrl = (gambar_varian) => {
     }
     return gambar_lama_preview.value;
   } else {
-    return `${new URL(window.location.origin)}` + " 404.png";
+    return `${new URL(window.location.origin)}` + "404.png";
   }
 };
 

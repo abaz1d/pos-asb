@@ -230,7 +230,7 @@ const initTabulator = () => {
         </div>
       </span>`;
     },
-    groupHeaderPrint: function (value, data) {
+    groupHeaderPrint: function (value, count, data) {
       return `
       <span class='text-center w-screen overflow-hidden whitespace-nowrap'>
         <div class="table w-full">

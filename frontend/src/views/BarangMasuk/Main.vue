@@ -504,7 +504,7 @@ const getImgUrl = (gambar_bukti) => {
     var images = gambar_bukti.data.map((b) => String.fromCharCode(b)).join("");
     return new URL(`${publicPath}gambar_bukti/${images}`).href;
   } else {
-    return `${new URL(window.location.origin)}` + " 404.png";
+    return `${new URL(window.location.origin)}` + "404.png";
   }
 };
 

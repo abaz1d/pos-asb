@@ -54,6 +54,7 @@ export const usePenjualanStore = defineStore({
           this.rawVarians = data.data.varian;
           this.rawPenjualans = data.data.penjualan;
           this.rawDetails = data.data.details;
+          console.log("rawItems", data);
           return this.rawPenjualans;
         }
       } catch (error) {
