@@ -1,19 +1,19 @@
 <script>
-import { usePenjualanStore } from "@/stores/penjualan";
+import { usePenyewaanStore } from "@/stores/penyewaan";
 import { currencyFormatter } from "@/utils/helper";
 
 export default {
   setup() {
-    const Penjualan = usePenjualanStore();
-    return { Penjualan, currencyFormatter };
+    const Pensewaan = usePenyewaanStore();
+    return { Pensewaan, currencyFormatter };
   },
   props: {
     detail: { type: Object, required: true },
   },
-  emits: ["openModalRemove", "updateTotalHargaJual"],
+  emits: ["openModalRemove", "updateTotalHargaSewa"],
   data() {
     return {
-      id: this.detail.id_detail_jual,
+      id: this.detail.id_detail_sewa,
       id_varian: this.detail.id_varian,
       nama_varian: this.detail.nama_varian,
       qty: this.detail.qty,
@@ -32,12 +32,12 @@ export default {
   methods: {
     async update(e) {
       try {
-        const data = await this.Penjualan.updateDetail(
+        const data = await this.Pensewaan.updateDetail(
           this.id,
           this.no_invoice,
           e
         );
-        this.$emit("updateTotalHargaJual", data.total_harga_jual);
+        this.$emit("updateTotalHargaSewa", data.total_harga_sewa);
       } catch (error) {
         console.error(error);
       }
@@ -75,7 +75,7 @@ export default {
         class="text-success fill-success w-6 h-6 cursor-pointer inline-block"
       />
     </td>
-    <td>{{ currencyFormatter.format(detail.harga_detail_jual) }}</td>
-    <td>{{ currencyFormatter.format(detail.total_harga_detail_jual) }}</td>
+    <td>{{ currencyFormatter.format(detail.harga_detail_sewa) }}</td>
+    <td>{{ currencyFormatter.format(detail.total_harga_detail_sewa) }}</td>
   </tr>
 </template>

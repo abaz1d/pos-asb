@@ -1,6 +1,6 @@
 <template>
   <div class="intro-y flex flex-col sm:flex-row items-center mt-8">
-    <h2 class="text-lg font-medium mr-auto">Penjualan</h2>
+    <h2 class="text-lg font-medium mr-auto">Penyewaan</h2>
     <div class="w-full sm:w-auto flex mt-4 sm:mt-0">
       <button
         class="btn btn-primary shadow-md mb-3 mr-2 pr-5"
@@ -10,7 +10,7 @@
         "
       >
         <PlusIcon class="w-4 h-4 mr-2" />
-        <p class="hidden xl:block mr-1">Penjualan</p>
+        <p class="hidden xl:block mr-1">Penyewaan</p>
         Baru
       </button>
       <!-- BEGIN: Modal Content -->
@@ -22,8 +22,8 @@
       >
         <ModalHeader class="border-b-2">
           <h2 class="hidden lg:block font-medium text-base mr-auto">
-            <p class="mx-auto" v-if="isEdit">Edit Penjualan {{ no_invoice }}</p>
-            <p class="mx-auto" v-else>Tambah Penjualan</p>
+            <p class="mx-auto" v-if="isEdit">Edit Penyewaan {{ no_invoice }}</p>
+            <p class="mx-auto" v-else>Tambah Penyewaan</p>
           </h2>
 
           <div
@@ -91,7 +91,7 @@
                                   --&gt; Pilih Items &lt;--
                                 </option>
                                 <option
-                                  v-for="varian in Penjualan.varians"
+                                  v-for="varian in Penyewaan.varians"
                                   :key="varian.id_varian"
                                   :varian="varian"
                                   :value="varian.id_varian"
@@ -274,14 +274,14 @@
               </div>
               <!-- END: Display Total Harga -->
 
-              <!-- BEGIN: Detail Penjualan -->
+              <!-- BEGIN: Detail Penyewaan -->
               <div class="col-span-12 flex-col-reverse">
                 <div class="intro-y box">
                   <div
                     class="flex items-center px-5 py-2 border-b border-slate-200/60 dark:border-darkmode-400"
                   >
                     <h2 class="font-medium text-base mr-auto">
-                      Detail Penjualan
+                      Detail Penyewaan
                     </h2>
                   </div>
                   <div class="px-2">
@@ -315,12 +315,12 @@
                           </tr>
                         </thead>
                         <tbody>
-                          <DetailPenjualan
-                            v-for="detail in Penjualan.penjualanDetail"
+                          <DetailPenyewaan
+                            v-for="detail in Penyewaan.penyewaanDetail"
                             :key="detail.id_barang"
                             :detail="detail"
                             @openModalRemove="openModalRemove"
-                            @updateTotalHargaJual="updateTotalHargaJual"
+                            @updateTotalHargasewa="updateTotalHargasewa"
                           />
                         </tbody>
                       </table>
@@ -331,7 +331,7 @@
                   </div>
                 </div>
               </div>
-              <!-- END: Detail Penjualan -->
+              <!-- END: Detail Penyewaan -->
             </div>
           </div>
         </ModalBody>
@@ -455,7 +455,7 @@
           </button>
           <button
             type="button"
-            @click="simpanPenjualan()"
+            @click="simpanPenyewaan()"
             class="object-left btn btn-primary w-32"
             :disabled="
               total_bayar_global == 0 || total_bayar_global < total_harga_global
@@ -488,10 +488,10 @@
             class="form-select w-full 2xl:w-full mt-2 sm:mt-0 sm:w-auto"
           >
             <option value="no_invoice">No Invoice</option>
-            <option value="tanggal_penjualan">Tanggal Penjualan</option>
-            <option value="total_harga_jual">Total Harga Jual</option>
-            <option value="total_bayar_jual">Total Bayar Jual</option>
-            <option value="kembalian_jual">Kembalian</option>
+            <option value="tanggal_penyewaan">Tanggal Penyewaan</option>
+            <option value="total_harga_sewa">Total Harga sewa</option>
+            <option value="total_bayar_sewa">Total Bayar sewa</option>
+            <option value="kembalian_sewa">Kembalian</option>
           </select>
         </div>
         <div class="sm:flex items-center sm:mr-4 mt-2 xl:mt-0">
@@ -578,7 +578,7 @@
     <div v-show="!isLoading" class="overflow-x-auto scrollbar-hidden">
       <div
         id="tabulator"
-        ref="tableJualRef"
+        ref="tablesewaRef"
         class="mt-5 intro-y table-report table-report--tabulator"
       ></div>
     </div>
@@ -599,7 +599,7 @@
         </div>
 
         <div v-else class="text-xl mt-5">
-          Apakah Anda yakin akan menghapus Penjualan <b> {{ no_invoice }} </b> ?
+          Apakah Anda yakin akan menghapus Penyewaan <b> {{ no_invoice }} </b> ?
         </div>
       </div>
       <div class="px-5 pb-8 text-center">
@@ -615,8 +615,8 @@
           class="btn btn-danger w-24"
           @click="
             modal_utama
-              ? removeItem(itemDel.id_detail_jual, itemDel.no_invoice)
-              : deletePenjualan(no_invoice)
+              ? removeItem(itemDel.id_detail_sewa, itemDel.no_invoice)
+              : deletePenyewaan(no_invoice)
           "
         >
           Delete
@@ -703,7 +703,7 @@
     <ModalBody class="bg-white">
       <div class="bg-white" id="modalPrintInvoice">
         <PrintInvoice
-          :prints="Penjualan.prints"
+          :prints="Penyewaan.prints"
           :no_invoice="no_invoice"
           :waktu="waktu"
           :total_harga_global="total_harga_global"
@@ -718,7 +718,7 @@
 
 <script setup>
 import $ from "jquery";
-import { usePenjualanStore } from "@/stores/penjualan";
+import { usePenyewaanStore } from "@/stores/penyewaan";
 import ModalDatabaseError from "@/components/modal-error/Main.vue";
 import { useAuthStore } from "@/stores/auth";
 import { ref, provide, reactive, onMounted, onBeforeUnmount, watch } from "vue";
@@ -729,11 +729,11 @@ import dom from "@left4code/tw-starter/dist/js/dom";
 import qrcode from "@/components/qrcode/QrCode.vue";
 import { currencyFormatter } from "@/utils/helper";
 import PrintInvoice from "./PrintInvoice.vue";
-import DetailPenjualan from "./DetailPenjualan.vue";
+import DetailPenyewaan from "./DetailPenyewaan.vue";
 import moment from "moment";
 import html2canvas from "html2canvas";
 const modalErrorRef = ref();
-const Penjualan = usePenjualanStore();
+const Penyewaan = usePenyewaanStore();
 const Auth = useAuthStore();
 const modal_utama = ref(false);
 const deleteConfirmationModal = ref(false);
@@ -741,7 +741,7 @@ const isEdit = ref(false);
 const isLoading = ref(false);
 const isModalScanner = ref(false);
 const qrScanner = ref();
-const tableJualRef = ref();
+const tablesewaRef = ref();
 const tabulator = ref();
 const filter = reactive({
   field: "no_invoice",
@@ -779,20 +779,20 @@ const basicNonStickyNotificationToggle = () => {
 };
 
 const startTransaction = () => {
-  Penjualan.startTransaction().then((data) => {
+  Penyewaan.startTransaction().then((data) => {
     no_invoice.value = data.no_invoice;
-    waktu.value = data.tanggal_penjualan;
+    waktu.value = data.tanggal_penyewaan;
   });
 };
 
 const addItem = () => {
-  Penjualan.addDetailPenjualan(
+  Penyewaan.addDetailPenyewaan(
     no_invoice.value,
     item_select.value,
     qty_select.value
   )
     .then((data) => {
-      total_harga_global.value = +data.total_harga_jual;
+      total_harga_global.value = +data.total_harga_sewa;
       stok.value = +stok.value - +qty_select.value;
       nama_campur_select.value = `${nama_barang_select.value} - ${nama_varian_select.value} | ${stok.value}`;
     })
@@ -817,7 +817,7 @@ const onPrintInvoice = () => {
   });
 };
 
-const updateTotalHargaJual = (total) => {
+const updateTotalHargasewa = (total) => {
   total_harga_global.value = +total;
 };
 
@@ -826,8 +826,8 @@ const openModalRemove = (item) => {
   deleteConfirmationModal.value = true;
 };
 
-const removeItem = (id_detail_jual, no_invoice) => {
-  Penjualan.removeItem(id_detail_jual, no_invoice)
+const removeItem = (id_detail_sewa, no_invoice) => {
+  Penyewaan.removeItem(id_detail_sewa, no_invoice)
     .then((data) => {
       stok.value = stok.value + parseInt(itemDel.value.qty);
       nama_campur_select.value = `${nama_barang_select.value} - ${nama_varian_select.value} | ${stok.value}`;
@@ -839,16 +839,16 @@ const removeItem = (id_detail_jual, no_invoice) => {
     });
 };
 
-const simpanPenjualan = () => {
+const simpanPenyewaan = () => {
   const no_invoice_now = no_invoice.value;
   const total_harga_global_now = total_harga_global.value;
   const total_bayar_global_now = total_bayar_global.value;
   const kembalian_now = kembalian.value;
   if (
-    Penjualan.penjualanDetail.length !== 0 &&
+    Penyewaan.penyewaanDetail.length !== 0 &&
     total_bayar_global.value >= total_harga_global.value
   ) {
-    Penjualan.addPenjualan(
+    Penyewaan.addPenyewaan(
       no_invoice_now,
       waktu.value,
       total_harga_global_now,
@@ -866,12 +866,12 @@ const simpanPenjualan = () => {
         alert("Simpan Error: " + e);
       });
   } else {
-    alert("Simpan Detail Penjualan Tidak Boleh Kosong");
+    alert("Simpan Detail Penyewaan Tidak Boleh Kosong");
   }
 };
 
-const deletePenjualan = (no_invoice) => {
-  Penjualan.removePenjualan(no_invoice);
+const deletePenyewaan = (no_invoice) => {
+  Penyewaan.removePenyewaan(no_invoice);
   initTabulator();
   deleteConfirmationModal.value = false;
 };
@@ -910,21 +910,21 @@ const resetModal = () => {
   total_bayar_global.value = 0;
   kembalian.value = 0;
   itemDel.value = "";
-  Penjualan.rawPenjualanDetail = [];
+  Penyewaan.rawPenyewaanDetail = [];
 };
 
 watch(item_select, async (e) => {
   try {
     if (e !== "kosong") {
-      Penjualan.readDetailItem(e)
+      Penyewaan.readDetailItem(e)
         .then((data) => {
           (nama_barang_select.value = data.nama_barang),
             (nama_varian_select.value = data.nama_varian),
             (nama_campur_select.value = `${data.nama_barang} - ${data.nama_varian} | ${data.stok_varian}`),
-            (harga_item_select.value = data.harga_jual_varian),
+            (harga_item_select.value = data.harga_sewa_varian),
             (stok.value = data.stok_varian),
             (qty_select.value = 1),
-            (total_harga_select.value = data.harga_jual_varian);
+            (total_harga_select.value = data.harga_sewa_varian);
         })
         .catch((error) => {
           throw new Error(error);
@@ -993,9 +993,9 @@ watch(filter, async () => {
 });
 
 const initTabulator = () => {
-  tabulator.value = new Tabulator(tableJualRef.value, {
-    data: Penjualan.penjualans,
-    printHeader: `<h1 class='text-2xl p-2 m-2 text-center border-y-2 border-black'>Tabel Penjualan<h1>`,
+  tabulator.value = new Tabulator(tablesewaRef.value, {
+    data: Penyewaan.penyewaans,
+    printHeader: `<h1 class='text-2xl p-2 m-2 text-center border-y-2 border-black'>Tabel Penyewaan<h1>`,
     printFooter: `<h2 class='p-2 m-2 text-center mt-4'>${moment(
       Date.now()
     ).format("DD MMM YYYY HH:SS")}<h2>`,
@@ -1045,15 +1045,15 @@ const initTabulator = () => {
           return a[0];
         },
         cellClick: function (e, cell) {
-          const penjualan = cell.getData();
+          const penyewaan = cell.getData();
 
-          Penjualan.readDetail(penjualan.no_invoice)
+          Penyewaan.readDetail(penyewaan.no_invoice)
             .then(() => {
-              no_invoice.value = penjualan.no_invoice;
-              waktu.value = penjualan.tanggal_penjualan;
-              total_harga_global.value = parseFloat(penjualan.total_harga_jual);
-              total_bayar_global.value = parseFloat(penjualan.total_bayar_jual);
-              kembalian.value = parseFloat(penjualan.kembalian_jual);
+              no_invoice.value = penyewaan.no_invoice;
+              waktu.value = penyewaan.tanggal_penyewaan;
+              total_harga_global.value = parseFloat(penyewaan.total_harga_sewa);
+              total_bayar_global.value = parseFloat(penyewaan.total_bayar_sewa);
+              kembalian.value = parseFloat(penyewaan.kembalian_sewa);
 
               isInvoice.value = true;
             })
@@ -1080,10 +1080,10 @@ const initTabulator = () => {
         },
       },
       {
-        title: "TANGGAL PENJUALAN",
+        title: "TANGGAL PENYEWAAN",
         headerHozAlign: "center",
         minWidth: 200,
-        field: "tanggal_penjualan",
+        field: "tanggal_penyewaan",
         hozAlign: "center",
         vertAlign: "middle",
         print: false,
@@ -1091,59 +1091,51 @@ const initTabulator = () => {
         formatter(cell) {
           return `<div>
                 <div class="font-medium whitespace-nowrap">${moment(
-                  cell.getData().tanggal_penjualan
+                  cell.getData().tanggal_penyewaan
                 ).format("DD MMM YYYY HH:SS")}</div>
               </div>`;
         },
       },
       {
-        title: "TOTAL HARGA",
+        title: "PERIODE",
         minWidth: 200,
         headerHozAlign: "center",
-        field: "total_harga_jual",
-        hozAlign: "right",
+        field: "periode",
+        hozAlign: "center",
         vertAlign: "middle",
         print: false,
         download: false,
         formatter(cell) {
           return `<div>
-                <div class="font-medium whitespace-nowrap">${currencyFormatter.format(
-                  cell.getData().total_harga_jual
-                )}</div>
+            <div class="font-medium whitespace-nowrap">${moment(
+              cell.getData().periode[0]
+            ).format("DD MMM YYYY")} - ${moment(
+            cell.getData().periode[1]
+          ).format("DD MMM YYYY")}</div>
               </div>`;
         },
       },
       {
-        title: "TOTAL BAYAR",
+        title: "STATUS",
         minWidth: 200,
         headerHozAlign: "center",
-        field: "total_bayar_jual",
-        hozAlign: "right",
+        field: "status",
+        hozAlign: "center",
         vertAlign: "middle",
         print: false,
         download: false,
         formatter(cell) {
           return `<div>
-                <div class="font-medium whitespace-nowrap">${currencyFormatter.format(
-                  cell.getData().total_bayar_jual
-                )}</div>
-              </div>`;
-        },
-      },
-      {
-        title: "KEMBALIAN",
-        headerHozAlign: "center",
-        minWidth: 200,
-        field: "kembalian_jual",
-        hozAlign: "right",
-        vertAlign: "middle",
-        print: false,
-        download: false,
-        formatter(cell) {
-          return `<div>
-                <div class="font-medium whitespace-nowrap">${currencyFormatter.format(
-                  cell.getData().kembalian_jual
-                )}</div>
+            <div class="flex lg:justify-center items-center">
+                <button class="btn btn-rounded  ${
+                  cell.getData().status === false
+                    ? "btn-success-soft"
+                    : "btn-primary-soft"
+                } flex items-center">
+                  <i data-lucide="package" class="w-4 h-4 mr-1"></i> ${
+                    cell.getData().status === false ? "AKTIF" : "SELESAI"
+                  }
+                </button>
               </div>`;
         },
       },
@@ -1175,18 +1167,14 @@ const initTabulator = () => {
               </div>`);
           dom(a).on("click", "a", function (e) {
             if (e.id === "edit") {
-              const penjualan = cell.getData();
-              Penjualan.readDetailPenjualan(penjualan.no_invoice)
+              const penyewaan = cell.getData();
+              Penyewaan.readDetailPenyewaan(penyewaan.no_invoice)
                 .then(() => {
-                  no_invoice.value = penjualan.no_invoice;
-                  waktu.value = penjualan.tanggal_penjualan;
-                  total_harga_global.value = parseFloat(
-                    penjualan.total_harga_jual
-                  );
-                  total_bayar_global.value = parseFloat(
-                    penjualan.total_bayar_jual
-                  );
-                  kembalian.value = parseFloat(penjualan.kembalian_jual);
+                  no_invoice.value = penyewaan.no_invoice;
+                  waktu.value = penyewaan.tanggal_penyewaan;
+                  total_harga_global.value = parseFloat(penyewaan.total_harga);
+                  total_bayar_global.value = parseFloat(penyewaan.total_bayar);
+                  kembalian.value = parseFloat(penyewaan.kembalian_sewa);
                   isEdit.value = true;
                   modal_utama.value = true;
                 })
@@ -1212,58 +1200,46 @@ const initTabulator = () => {
         download: true,
       },
       {
-        title: "TANGGAL PENJUALAN",
-        field: "tanggal_penjualan",
+        title: "TANGGAL PENYEWAAN",
+        field: "tanggal_penyewaan",
         visible: false,
         print: true,
         download: true,
         formatter(cell) {
           return `<div>
                 <div class="font-medium whitespace-nowrap">${moment(
-                  cell.getData().tanggal_penjualan
+                  cell.getData().tanggal_penyewaan
                 ).format("DD MMM YYYY HH:SS")}</div>
               </div>`;
         },
       },
       {
-        title: "TOTAL HARGA",
-        field: "total_harga_jual",
+        title: "PERIODE",
+        field: "periode",
         visible: false,
         print: true,
         download: true,
         formatter(cell) {
           return `<div>
-                <div class="font-medium whitespace-nowrap">${currencyFormatter.format(
-                  parseFloat(cell.getData().total_harga_jual)
-                )}</div>
+            <div class="font-medium whitespace-nowrap">${moment(
+              cell.getData().periode[0]
+            ).format("DD MMM YYYY")} - ${moment(
+            cell.getData().periode[1]
+          ).format("DD MMM YYYY")}</div>
               </div>`;
         },
       },
       {
-        title: "TOTAL BAYAR",
-        field: "total_bayar_jual",
+        title: "STATUS",
+        field: "status",
         visible: false,
         print: true,
         download: true,
         formatter(cell) {
           return `<div>
-                <div class="font-medium whitespace-nowrap">${currencyFormatter.format(
-                  cell.getData().total_bayar_jual
-                )}</div>
-              </div>`;
-        },
-      },
-      {
-        title: "KEMBALIAN",
-        field: "kembalian_jual",
-        visible: false,
-        print: true,
-        download: true,
-        formatter(cell) {
-          return `<div>
-                <div class="font-medium whitespace-nowrap">${currencyFormatter.format(
-                  cell.getData().kembalian_jual
-                )}</div>
+            <div class="font-medium whitespace-nowrap">${
+              cell.getData().status === false ? "SELESAI" : "AKTIF"
+            }</div>
               </div>`;
         },
       },
@@ -1310,7 +1286,7 @@ const initTabulator = () => {
             title: "HARGA ITEM",
             headerHozAlign: "center",
             minWidth: 200,
-            field: "harga_detail_jual",
+            field: "harga_detail_sewa",
             hozAlign: "right",
             vertAlign: "middle",
             print: false,
@@ -1318,7 +1294,7 @@ const initTabulator = () => {
             formatter(cell) {
               return `<div>
                 <div class="font-medium whitespace-nowrap">${currencyFormatter.format(
-                  cell.getData().harga_detail_jual
+                  cell.getData().harga_detail_sewa
                 )}</div>
               </div>`;
             },
@@ -1344,7 +1320,7 @@ const initTabulator = () => {
             title: "TOTAL HARGA",
             minWidth: 200,
             headerHozAlign: "center",
-            field: "total_harga_detail_jual",
+            field: "total_harga_detail_sewa",
             hozAlign: "right",
             vertAlign: "middle",
             print: false,
@@ -1352,7 +1328,7 @@ const initTabulator = () => {
             formatter(cell) {
               return `<div>
                 <div class="font-medium whitespace-nowrap">${currencyFormatter.format(
-                  cell.getData().total_harga_detail_jual
+                  cell.getData().total_harga_detail_sewa
                 )}</div>
               </div>`;
             },
@@ -1368,7 +1344,7 @@ const initTabulator = () => {
           },
           {
             title: "HARGA ITEM",
-            field: "harga_detail_jual",
+            field: "harga_detail_sewa",
             visible: false,
             print: true,
             download: true,
@@ -1381,8 +1357,8 @@ const initTabulator = () => {
             download: true,
           },
           {
-            title: "TOTAL HARGA",
-            field: "total_harga_detail_jual",
+            title: "PERIODE",
+            field: "periode",
             visible: false,
             print: true,
             download: true,
@@ -1401,7 +1377,7 @@ const initTabulator = () => {
   tabulator.value.on("rowDblClick", async function (e, row) {
     const id = row.getData().no_invoice;
     try {
-      await Penjualan.readDetail(id)
+      await Penyewaan.readDetail(id)
         .then((data) => {
           tabulator.value.replaceData(data);
         })
@@ -1465,7 +1441,7 @@ onMounted(async function () {
   try {
     auth.value = Auth.items;
     isLoading.value = true;
-    await Penjualan.readItem();
+    await Penyewaan.readItem();
     initTabulator();
     reInitOnResizeWindow();
     basicNonStickyNotificationToggle();
