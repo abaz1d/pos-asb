@@ -44,6 +44,11 @@ export const useSideMenuStore = defineStore("sideMenu", {
             pageName: "side-menu-stok-lokal",
             title: "Stok Lokal",
           },
+          {
+            icon: "ArrowBigUpIcon",
+            pageName: "side-menu-penyewaan",
+            title: "Penyewaan",
+          },
         ],
       },
       {

@@ -44,6 +44,11 @@ export const useTopMenuStore = defineStore("topMenu", {
             pageName: "top-menu-stok-lokal",
             title: "Stok Lokal",
           },
+          {
+            icon: "ArrowBigUpIcon",
+            pageName: "top-menu-penyewaan",
+            title: "Penyewaan",
+          },
         ],
       },
       {

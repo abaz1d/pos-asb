@@ -14,6 +14,7 @@ import Outlet from "@/views/Outlet/Main.vue";
 import Pelanggan from "@/views/Pelanggan/Main.vue";
 import BarangMasuk from "@/views/BarangMasuk/Main.vue";
 import Penjualan from "@/views/Penjualan/Main.vue";
+import Penyewaan from "@/views/Penyewaan/Main.vue";
 import Pembelian from "@/views/Pembelian/Main.vue";
 import Retur from "@/views/Retur/Main.vue";
 import StokLokal from "@/views/StokLokal/Main.vue";
@@ -126,6 +127,12 @@ const routes = [
         meta: { authorize: ["Super Admin"] },
       },
       {
+        path: "penyewaan",
+        name: "top-menu-penyewaan",
+        component: Penyewaan,
+        meta: { authorize: [] },
+      },
+      {
         path: "bantuan",
         name: "top-menu-bantuan",
         component: FAQ,
@@ -234,6 +241,12 @@ const routes = [
         meta: { authorize: ["Super Admin"] },
       },
       {
+        path: "penyewaan",
+        name: "side-menu-penyewaan",
+        component: Penyewaan,
+        meta: { authorize: [] },
+      },
+      {
         path: "bantuan",
         name: "side-menu-bantuan",
         component: FAQ,
@@ -340,6 +353,12 @@ const routes = [
         name: "simple-menu-semua-akun",
         component: Users,
         meta: { authorize: ["Super Admin"] },
+      },
+      {
+        path: "penyewaan",
+        name: "simple-menu-penyewaan",
+        component: Penyewaan,
+        meta: { authorize: [] },
       },
       {
         path: "bantuan",
