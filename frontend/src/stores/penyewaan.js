@@ -51,7 +51,6 @@ export const usePenyewaanStore = defineStore({
           }`
         );
         if (data.success) {
-          console.log("daaatttaaaa", data);
           this.rawVarians = data.data.varian;
           this.rawPenyewaans = data.data.penyewaan;
           this.rawDetails = data.data.details;
@@ -63,19 +62,20 @@ export const usePenyewaanStore = defineStore({
     },
     async addPenyewaan(
       no_invoice,
-      waktu,
+      startDate,
+      endDate,
       total_harga_global,
       total_bayar_global,
       kembalian,
       isEdit
     ) {
-      const tanggal_penyewaan = waktu;
       const total_harga_sewa = total_harga_global;
       const total_bayar_sewa = total_bayar_global;
       if (!isEdit) {
         this.rawPenyewaans.push({
           no_invoice,
-          tanggal_penyewaan,
+          startDate,
+          endDate,
           total_harga_sewa,
           total_bayar_sewa,
           kembalian,
@@ -84,6 +84,8 @@ export const usePenyewaanStore = defineStore({
       try {
         const { data } = await request.post("penyewaan/upsewa", {
           no_invoice,
+          startDate,
+          endDate,
           total_harga_sewa,
           total_bayar_sewa,
           kembalian,

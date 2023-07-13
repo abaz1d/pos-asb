@@ -6,7 +6,9 @@
       <div class="bg-white font-semibold text-primary text-3xl">
         {{ no_invoice }} <br />
         <div class="bg-white text-xl text-black font-medium">
-          {{ dateFormat(waktu).format("DD MMM YYYY HH:SS") }}
+          {{ dateFormat(startDate).format("DD MMM YYYY") }}
+          -
+          {{ dateFormat(endDate).format("DD MMM YYYY") }}
         </div>
       </div>
       <div class="bg-white mt-20 lg:mt-0 lg:ml-auto lg:text-right">
@@ -52,10 +54,10 @@
                 {{ print.qty }}
               </td>
               <td class="bg-white text-right border-b w-32">
-                {{ currencyFormat.format(print.harga_detail_jual) }}
+                {{ currencyFormat.format(print.harga_detail_sewa) }}
               </td>
               <td class="bg-white text-right border-b w-32 font-medium">
-                {{ currencyFormat.format(print.total_harga_detail_jual) }}
+                {{ currencyFormat.format(print.total_harga_detail_sewa) }}
               </td>
             </tr>
           </tbody>
@@ -129,7 +131,10 @@ export default {
     no_invoice: {
       type: String,
     },
-    waktu: {
+    startDate: {
+      type: String,
+    },
+    endDate: {
       type: String,
     },
     total_harga_global: {

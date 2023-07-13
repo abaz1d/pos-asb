@@ -45,15 +45,23 @@
               <div
                 class="bg-slate-200 rounded-md p-2 font-medium lg:text-base text-sm px-2"
               >
-                <p class="text-right text-black">
-                  {{ moment(waktu).format("DD MMM YYYY HH:SS") }}
+                <p class="text-center text-black">
+                  {{ status ? "Selesai" : "Aktif" }}
                 </p>
               </div>
               <p
-                class="text-center bg-primary text-white rounded-md w-24 mx-auto lg:-mt-[52px] -mt-12 lg:mb-8 mb-6"
+                class="text-center bg-primary text-white rounded-md w-14 mx-auto lg:-mt-[52px] -mt-12 lg:mb-8 mb-6"
               >
-                WAKTU
+                STATUS
               </p>
+            </div>
+            <div
+              @click="resetModal()"
+              class="sm:w-auto flex ml-2 -mt-2 items-right cursor-pointer"
+            >
+              <div class="m-auto text-slate-100 bg-danger rounded">
+                <XIcon class="w-8 h-8 mx-auto" />
+              </div>
             </div>
           </div>
         </ModalHeader>
@@ -214,63 +222,19 @@
 
               <!-- BEGIN: Display Total Harga -->
               <div class="lg:block hidden mt-2 col-span-4">
-                <div class="intro-y box">
-                  <div class="box flex p-2">
-                    <input
-                      type="text"
-                      class="form-control py-3 px-4 w-full bg-slate-100 border-slate-200/60 pr-10"
-                      placeholder="Use coupon code..."
-                    />
-                    <button class="btn btn-primary ml-2">Apply</button>
-                  </div>
-                  <div class="box p-2 mt-2">
-                    <div class="flex">
-                      <div class="mr-auto font-medium text-base">
-                        Total Harga
-                      </div>
-                    </div>
-                    <div class="bg-slate-200 rounded-md p-2">
-                      <div class="font-medium text-xl">
-                        <p class="text-right text-black">
-                          {{ currencyFormatter.format(total_harga_global) }}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div
-                      class="flex mt-4 pt-4 border-t border-slate-200/60 dark:border-darkmode-400"
-                    >
-                      <div class="mr-auto font-medium text-base">
-                        Total Bayar
-                      </div>
-                    </div>
-                    <div
-                      class="input-group bg-slate-200 rounded-md border-2 border-slate-200/60 mr-0"
-                    >
-                      <div class="input-group-text my-auto text-xl">
-                        <p class="text-black">Rp.</p>
-                      </div>
-                      <input
-                        v-model="total_bayar_global"
-                        type="number"
-                        class="form-control flex-1 font-medium text-xl text-right"
-                        placeholder="Nominal Uang"
-                        required
-                      />
-                    </div>
-
-                    <div class="flex mt-1 pt-4">
-                      <div class="mr-auto font-medium text-base">Kembalian</div>
-                    </div>
-                    <div class="bg-slate-200 rounded-md p-2">
-                      <div class="font-medium text-xl">
-                        <p class="text-right text-black">
-                          {{ currencyFormatter.format(kembalian) }}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <DetailKasir
+                  :startDate="startDate"
+                  :endDate="endDate"
+                  :totalHargaGlobal="total_harga_global"
+                  :totalBayarGlobal="total_bayar_global"
+                  :kembalian="kembalian"
+                  :periode="periode"
+                  @update:startDate="(newValue) => (startDate = newValue)"
+                  @update:endDate="(newValue) => (endDate = newValue)"
+                  @update:totalBayarGlobal="
+                    (newValue) => (total_bayar_global = parseInt(newValue))
+                  "
+                />
               </div>
               <!-- END: Display Total Harga -->
 
@@ -380,65 +344,19 @@
               >
                 <ChevronDownIcon class="animate-bounce block mx-auto" />
                 <div class="flex lg:block flex-col-reverse">
-                  <div class="intro-y box">
-                    <div class="box flex p-2">
-                      <input
-                        type="text"
-                        class="form-control py-3 px-4 w-full bg-slate-100 border-slate-200/60 pr-10"
-                        placeholder="Use coupon code..."
-                      />
-                      <button class="btn btn-primary ml-2">Apply</button>
-                    </div>
-                    <div class="box p-2 mt-2">
-                      <div class="flex">
-                        <div class="mr-auto font-medium text-base">
-                          Total Harga
-                        </div>
-                      </div>
-                      <div class="bg-slate-200 rounded-md p-2">
-                        <div class="font-medium text-xl">
-                          <p class="text-right text-black">
-                            {{ currencyFormatter.format(total_harga_global) }}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div
-                        class="flex mt-4 pt-4 border-t border-slate-200/60 dark:border-darkmode-400"
-                      >
-                        <div class="mr-auto font-medium text-base">
-                          Total Bayar
-                        </div>
-                      </div>
-                      <div
-                        class="input-group bg-slate-200 rounded-md border-2 border-slate-200/60 mr-0"
-                      >
-                        <div class="input-group-text my-auto text-xl">
-                          <p class="text-black">Rp.</p>
-                        </div>
-                        <input
-                          v-model="total_bayar_global"
-                          type="number"
-                          class="form-control flex-1 font-medium text-xl text-right"
-                          placeholder="Nominal Uang"
-                          required
-                        />
-                      </div>
-
-                      <div class="flex mt-1 pt-4">
-                        <div class="mr-auto font-medium text-base">
-                          Kembalian
-                        </div>
-                      </div>
-                      <div class="bg-slate-200 rounded-md p-2">
-                        <div class="font-medium text-xl">
-                          <p class="text-right text-black">
-                            {{ currencyFormatter.format(kembalian) }}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  <DetailKasir
+                    :startDate="startDate"
+                    :endDate="endDate"
+                    :totalHargaGlobal="total_harga_global"
+                    :totalBayarGlobal="total_bayar_global"
+                    :kembalian="kembalian"
+                    :periode="periode"
+                    @update:startDate="(newValue) => (startDate = newValue)"
+                    @update:endDate="(newValue) => (endDate = newValue)"
+                    @update:totalBayarGlobal="
+                      (newValue) => (total_bayar_global = parseInt(newValue))
+                    "
+                  />
                 </div>
               </AccordionPanel>
             </AccordionItem>
@@ -705,7 +623,8 @@
         <PrintInvoice
           :prints="Penyewaan.prints"
           :no_invoice="no_invoice"
-          :waktu="waktu"
+          :startDate="startDate"
+          :endDate="endDate"
           :total_harga_global="total_harga_global"
           :total_bayar_global="total_bayar_global"
           :kembalian="kembalian"
@@ -730,8 +649,10 @@ import qrcode from "@/components/qrcode/QrCode.vue";
 import { currencyFormatter } from "@/utils/helper";
 import PrintInvoice from "./PrintInvoice.vue";
 import DetailPenyewaan from "./DetailPenyewaan.vue";
+import DetailKasir from "./DetailKasir.vue";
 import moment from "moment";
 import html2canvas from "html2canvas";
+
 const modalErrorRef = ref();
 const Penyewaan = usePenyewaanStore();
 const Auth = useAuthStore();
@@ -751,7 +672,8 @@ const filter = reactive({
 var subTable;
 const isInvoice = ref(false);
 const no_invoice = ref("-");
-const waktu = ref("");
+const status = ref(false);
+const periode = ref([]);
 const item_select = ref("kosong");
 const stok = ref(0);
 const nama_barang_select = ref("-");
@@ -766,6 +688,8 @@ const kembalian = ref(0);
 
 const itemDel = ref("");
 const auth = ref();
+const startDate = ref("");
+const endDate = ref("");
 
 // Basic non sticky notification
 const basicNonStickyNotification = ref();
@@ -781,7 +705,7 @@ const basicNonStickyNotificationToggle = () => {
 const startTransaction = () => {
   Penyewaan.startTransaction().then((data) => {
     no_invoice.value = data.no_invoice;
-    waktu.value = data.tanggal_penyewaan;
+    //status.value = data.tanggal_penyewaan;
   });
 };
 
@@ -850,7 +774,8 @@ const simpanPenyewaan = () => {
   ) {
     Penyewaan.addPenyewaan(
       no_invoice_now,
-      waktu.value,
+      startDate.value,
+      endDate.value,
       total_harga_global_now,
       total_bayar_global_now,
       kembalian_now,
@@ -897,7 +822,8 @@ const resetModal = () => {
   isModalScanner.value = false;
   isInvoice.value = false;
   no_invoice.value = "-";
-  waktu.value = "";
+  status.value = false;
+  periode.value = [];
   item_select.value = "kosong";
   stok.value = 0;
   nama_barang_select.value = "-";
@@ -911,6 +837,8 @@ const resetModal = () => {
   kembalian.value = 0;
   itemDel.value = "";
   Penyewaan.rawPenyewaanDetail = [];
+  startDate.value = "";
+  endDate.value = "";
 };
 
 watch(item_select, async (e) => {
@@ -962,7 +890,20 @@ watch(total_bayar_global, async (newValue, oldValue) => {
       alert("Total Bayar tidak boleh kosong atau minus");
       total_bayar_global.value = oldValue;
     } else {
+      // if (periode.value.length > 1) {
+      // kembalian.value =
+      //   total_bayar_global_now -
+      //   total_harga_global_now *
+      //     (parseInt(
+      //       moment(periode.value[1]).diff(periode.value[0], "days")
+      //     ) === 0
+      //       ? 1
+      //       : parseInt(
+      //           moment(periode.value[1]).diff(periode.value[0], "days")
+      //         ));
+      // } else {
       kembalian.value = total_bayar_global_now - total_harga_global_now;
+      // }
     }
   } catch (error) {
     alert("Gagal wtch total_bayar_globl" + error);
@@ -977,13 +918,69 @@ watch(total_harga_global, async (newValue, oldValue) => {
       alert("Total Harga tidak boleh kosong atau minus");
       total_harga_global.value = oldValue;
     } else {
+      // if (periode.value.length > 1) {
+      // kembalian.value =
+      //   total_bayar_global_now -
+      //   total_harga_global_now *
+      //     (parseInt(
+      //       moment(periode.value[1]).diff(periode.value[0], "days")
+      //     ) === 0
+      //       ? 1
+      //       : parseInt(
+      //           moment(periode.value[1]).diff(periode.value[0], "days")
+      //         ));
+      // } else {
       kembalian.value = total_bayar_global_now - total_harga_global_now;
+      // }
     }
   } catch (error) {
     alert("Gagal wtch total_harga_globl" + error);
   }
 });
 
+watch(startDate, async (newValue, oldValue) => {
+  try {
+    periode.value = [newValue, endDate.value];
+  } catch (error) {
+    alert("Gagal wtch startDate" + error);
+  }
+});
+watch(endDate, async (newValue, oldValue) => {
+  try {
+    periode.value = [startDate.value, newValue];
+  } catch (error) {
+    alert("Gagal wtch endDate" + error);
+  }
+});
+
+watch(periode, async (newValue, oldValue) => {
+  try {
+    if (newValue.length === 2 && newValue[0] !== "" && newValue[1] !== "") {
+      //console.log("periode", newValue, oldValue);
+      let hariBaru = parseInt(moment(newValue[1]).diff(newValue[0], "days"));
+      let hariLama = parseInt(moment(oldValue[1]).diff(oldValue[0], "days"));
+      const total_harga_global_now = total_harga_global.value;
+      const hargaBaru =
+        total_harga_global_now *
+        parseInt(moment(newValue[1]).diff(newValue[0], "days"));
+      let hargaLama =
+        total_harga_global_now *
+        parseInt(moment(oldValue[1]).diff(oldValue[0], "days"));
+      console.log("e", total_harga_global_now * hariBaru, hariBaru);
+      if (hariBaru - hariLama >= 1) {
+        //total_harga_global.value = hargaBaru;
+        // total_harga_global_now *
+        //   parseInt(moment(newValue[1]).diff(newValue[0], "days")) -
+        // total_harga_global_now *
+        //   parseInt(moment(oldValue[1]).diff(oldValue[0], "days"));
+      } else {
+        total_harga_global.value = total_harga_global_now * 1;
+      }
+    }
+  } catch (error) {
+    alert("Gagal wtch periode" + error);
+  }
+});
 watch(filter, async () => {
   try {
     onFilter();
@@ -991,6 +988,27 @@ watch(filter, async () => {
     alert("Gagal wtch filter" + error);
   }
 });
+
+const lamaPeriode = (periode) => {
+  if (periode.length === 2) {
+    const tanggalAwal = moment(periode[0]);
+    const tanggalAkhir = moment(periode[1]);
+
+    const selisihHari = tanggalAkhir.diff(tanggalAwal, "days");
+    const selisihBulan = tanggalAkhir.diff(tanggalAwal, "months");
+    const selisihTahun = tanggalAkhir.diff(tanggalAwal, "years");
+
+    if (selisihHari <= 30) {
+      return `${selisihHari} Hari`;
+    } else if (selisihBulan <= 12) {
+      return `${selisihBulan} Bulan`;
+    } else {
+      return `${selisihTahun} Tahun`;
+    }
+  } else {
+    return "-";
+  }
+};
 
 const initTabulator = () => {
   tabulator.value = new Tabulator(tablesewaRef.value, {
@@ -1039,7 +1057,7 @@ const initTabulator = () => {
         formatter() {
           const a = dom(`<div class="flex lg:justify-center items-center ml-6">
                 <a id="edit" class="flex items-center mr-3" href="javascript:;">
-                  <i data-lucide="printer" class="w-4 h-4 mr-1"></i> 
+                  <i data-lucide="printer" class="w-4 h-4 mr-1"></i>
                 </a>
               </div>`);
           return a[0];
@@ -1048,12 +1066,14 @@ const initTabulator = () => {
           const penyewaan = cell.getData();
 
           Penyewaan.readDetail(penyewaan.no_invoice)
-            .then(() => {
+            .then((data) => {
+              console.log(data[0]);
               no_invoice.value = penyewaan.no_invoice;
-              waktu.value = penyewaan.tanggal_penyewaan;
-              total_harga_global.value = parseFloat(penyewaan.total_harga_sewa);
-              total_bayar_global.value = parseFloat(penyewaan.total_bayar_sewa);
-              kembalian.value = parseFloat(penyewaan.kembalian_sewa);
+              startDate.value = data[0].periode[0];
+              endDate.value = data[0].periode[1];
+              total_harga_global.value = parseFloat(data[0].total_harga);
+              total_bayar_global.value = parseFloat(data[0].total_bayar);
+              kembalian.value = parseFloat(data[0].kembalian);
 
               isInvoice.value = true;
             })
@@ -1107,12 +1127,17 @@ const initTabulator = () => {
         download: false,
         formatter(cell) {
           return `<div>
-            <div class="font-medium whitespace-nowrap">${moment(
-              cell.getData().periode[0]
-            ).format("DD MMM YYYY")} - ${moment(
-            cell.getData().periode[1]
-          ).format("DD MMM YYYY")}</div>
-              </div>`;
+          <div class="flex font-medium items-center lg:justify-center mb-1">
+            <kbd class="select-all px-2 py-1.5 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg dark:bg-gray-600 dark:text-gray-100 dark:border-gray-500">
+            ${lamaPeriode(cell.getData().periode)}
+            </kbd>
+          </div>
+          <div class=" whitespace-nowrap">${moment(
+            cell.getData().periode[0]
+          ).format("DD MMM YYYY")} - ${moment(cell.getData().periode[1]).format(
+            "DD MMM YYYY"
+          )}</div>
+        </div>`;
         },
       },
       {
@@ -1171,7 +1196,10 @@ const initTabulator = () => {
               Penyewaan.readDetailPenyewaan(penyewaan.no_invoice)
                 .then(() => {
                   no_invoice.value = penyewaan.no_invoice;
-                  waktu.value = penyewaan.tanggal_penyewaan;
+                  status.value = penyewaan.status;
+                  startDate.value = penyewaan.periode[0];
+                  endDate.value = penyewaan.periode[1];
+                  periode.value = penyewaan.periode;
                   total_harga_global.value = parseFloat(penyewaan.total_harga);
                   total_bayar_global.value = parseFloat(penyewaan.total_bayar);
                   kembalian.value = parseFloat(penyewaan.kembalian_sewa);
@@ -1448,6 +1476,7 @@ onMounted(async function () {
     isLoading.value = false;
     modalErrorRef.value.errorDatabaseModal = false;
   } catch (error) {
+    console.error(error);
     isLoading.value = false;
     modalErrorRef.value.errorDatabaseModal = true;
   }
