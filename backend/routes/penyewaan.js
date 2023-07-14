@@ -80,7 +80,7 @@ module.exports = function (db) {
     try {
       const id_outlet = req.query.id_outlet ? req.query.id_outlet : "";
       const { rows } = await db.query(
-        "SELECT sv.*,v.nama_varian, b.id_barang, b.nama_barang, v.harga_sewa_varian FROM sub_varian sv LEFT JOIN varian v ON sv.id_varian = v.id_varian LEFT JOIN barang b ON v.id_barang = b.id_barang WHERE v.id_varian = $1 AND sv.id_outlet = $2",
+        "SELECT sv.*,v.nama_varian, b.id_barang, b.nama_barang, v.harga_jual_varian FROM sub_varian sv LEFT JOIN varian v ON sv.id_varian = v.id_varian LEFT JOIN barang b ON v.id_barang = b.id_barang WHERE v.id_varian = $1 AND sv.id_outlet = $2",
         [req.params.id_varian, id_outlet]
       );
       res.json(new Response(rows, true));
@@ -190,12 +190,14 @@ module.exports = function (db) {
           "DELETE FROM penyewaan_detail WHERE id_detail_sewa = $1",
           [req.params.id_detail_sewa]
         );
+        console.log("delDetail", delDetail);
         const { rows } = await db.query(
           "SELECT SUM(total_harga_detail_sewa)  AS total FROM penyewaan_detail WHERE no_invoice = $1",
           [req.body.no_invoice]
         );
         res.json(new Response(rows, true));
       } catch (e) {
+        console.error(e);
         res.status(500).json(new Response(e, false));
       }
     }

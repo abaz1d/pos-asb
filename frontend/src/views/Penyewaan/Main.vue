@@ -284,7 +284,9 @@
                             :key="detail.id_barang"
                             :detail="detail"
                             @openModalRemove="openModalRemove"
-                            @updateTotalHargasewa="updateTotalHargasewa"
+                            @updateTotalHargaSewa="
+                              (total) => (total_harga_global = +total)
+                            "
                           />
                         </tbody>
                       </table>
@@ -407,8 +409,8 @@
           >
             <option value="no_invoice">No Invoice</option>
             <option value="tanggal_penyewaan">Tanggal Penyewaan</option>
-            <option value="total_harga_sewa">Total Harga sewa</option>
-            <option value="total_bayar_sewa">Total Bayar sewa</option>
+            <option value="total_harga">Total Harga sewa</option>
+            <option value="total_bayar">Total Bayar sewa</option>
             <option value="kembalian_sewa">Kembalian</option>
           </select>
         </div>
@@ -716,7 +718,7 @@ const addItem = () => {
     qty_select.value
   )
     .then((data) => {
-      total_harga_global.value = +data.total_harga_sewa;
+      total_harga_global.value = +data.total_harga;
       stok.value = +stok.value - +qty_select.value;
       nama_campur_select.value = `${nama_barang_select.value} - ${nama_varian_select.value} | ${stok.value}`;
     })
@@ -739,10 +741,6 @@ const onPrintInvoice = () => {
     barcodeImgTag.click();
     isLoading.value = false;
   });
-};
-
-const updateTotalHargasewa = (total) => {
-  total_harga_global.value = +total;
 };
 
 const openModalRemove = (item) => {
@@ -849,10 +847,10 @@ watch(item_select, async (e) => {
           (nama_barang_select.value = data.nama_barang),
             (nama_varian_select.value = data.nama_varian),
             (nama_campur_select.value = `${data.nama_barang} - ${data.nama_varian} | ${data.stok_varian}`),
-            (harga_item_select.value = data.harga_sewa_varian),
+            (harga_item_select.value = data.harga_jual_varian),
             (stok.value = data.stok_varian),
             (qty_select.value = 1),
-            (total_harga_select.value = data.harga_sewa_varian);
+            (total_harga_select.value = data.harga_jual_varian);
         })
         .catch((error) => {
           throw new Error(error);
@@ -966,7 +964,7 @@ watch(periode, async (newValue, oldValue) => {
       let hargaLama =
         total_harga_global_now *
         parseInt(moment(oldValue[1]).diff(oldValue[0], "days"));
-      console.log("e", total_harga_global_now * hariBaru, hariBaru);
+      //console.log("e", total_harga_global_now * hariBaru, hariBaru);
       if (hariBaru - hariLama >= 1) {
         //total_harga_global.value = hargaBaru;
         // total_harga_global_now *

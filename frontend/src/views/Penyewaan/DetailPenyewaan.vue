@@ -37,7 +37,7 @@ export default {
           this.no_invoice,
           e
         );
-        this.$emit("updateTotalHargaSewa", data.total_harga_sewa);
+        this.$emit("updateTotalHargaSewa", data.total_harga);
       } catch (error) {
         console.error(error);
       }
