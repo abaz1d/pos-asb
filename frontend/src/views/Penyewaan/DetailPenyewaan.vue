@@ -4,8 +4,8 @@ import { currencyFormatter } from "@/utils/helper";
 
 export default {
   setup() {
-    const Pensewaan = usePenyewaanStore();
-    return { Pensewaan, currencyFormatter };
+    const Penyewaan = usePenyewaanStore();
+    return { Penyewaan, currencyFormatter };
   },
   props: {
     detail: { type: Object, required: true },
@@ -32,7 +32,7 @@ export default {
   methods: {
     async update(e) {
       try {
-        const data = await this.Pensewaan.updateDetail(
+        const data = await this.Penyewaan.updateDetail(
           this.id,
           this.no_invoice,
           e

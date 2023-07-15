@@ -707,7 +707,6 @@ const basicNonStickyNotificationToggle = () => {
 const startTransaction = () => {
   Penyewaan.startTransaction().then((data) => {
     no_invoice.value = data.no_invoice;
-    //status.value = data.tanggal_penyewaan;
   });
 };
 
@@ -772,8 +771,7 @@ const simpanPenyewaan = () => {
   ) {
     Penyewaan.addPenyewaan(
       no_invoice_now,
-      startDate.value,
-      endDate.value,
+      periode.value,
       total_harga_global_now,
       total_bayar_global_now,
       kembalian_now,
@@ -888,20 +886,7 @@ watch(total_bayar_global, async (newValue, oldValue) => {
       alert("Total Bayar tidak boleh kosong atau minus");
       total_bayar_global.value = oldValue;
     } else {
-      // if (periode.value.length > 1) {
-      // kembalian.value =
-      //   total_bayar_global_now -
-      //   total_harga_global_now *
-      //     (parseInt(
-      //       moment(periode.value[1]).diff(periode.value[0], "days")
-      //     ) === 0
-      //       ? 1
-      //       : parseInt(
-      //           moment(periode.value[1]).diff(periode.value[0], "days")
-      //         ));
-      // } else {
       kembalian.value = total_bayar_global_now - total_harga_global_now;
-      // }
     }
   } catch (error) {
     alert("Gagal wtch total_bayar_globl" + error);
@@ -916,20 +901,7 @@ watch(total_harga_global, async (newValue, oldValue) => {
       alert("Total Harga tidak boleh kosong atau minus");
       total_harga_global.value = oldValue;
     } else {
-      // if (periode.value.length > 1) {
-      // kembalian.value =
-      //   total_bayar_global_now -
-      //   total_harga_global_now *
-      //     (parseInt(
-      //       moment(periode.value[1]).diff(periode.value[0], "days")
-      //     ) === 0
-      //       ? 1
-      //       : parseInt(
-      //           moment(periode.value[1]).diff(periode.value[0], "days")
-      //         ));
-      // } else {
       kembalian.value = total_bayar_global_now - total_harga_global_now;
-      // }
     }
   } catch (error) {
     alert("Gagal wtch total_harga_globl" + error);
@@ -938,14 +910,18 @@ watch(total_harga_global, async (newValue, oldValue) => {
 
 watch(startDate, async (newValue, oldValue) => {
   try {
-    periode.value = [newValue, endDate.value];
+    if (newValue !== "") {
+      periode.value = [newValue, endDate.value];
+    }
   } catch (error) {
     alert("Gagal wtch startDate" + error);
   }
 });
 watch(endDate, async (newValue, oldValue) => {
   try {
-    periode.value = [startDate.value, newValue];
+    if (newValue !== "") {
+      periode.value = [startDate.value, newValue];
+    }
   } catch (error) {
     alert("Gagal wtch endDate" + error);
   }
@@ -953,27 +929,20 @@ watch(endDate, async (newValue, oldValue) => {
 
 watch(periode, async (newValue, oldValue) => {
   try {
-    if (newValue.length === 2 && newValue[0] !== "" && newValue[1] !== "") {
-      //console.log("periode", newValue, oldValue);
-      let hariBaru = parseInt(moment(newValue[1]).diff(newValue[0], "days"));
-      let hariLama = parseInt(moment(oldValue[1]).diff(oldValue[0], "days"));
-      const total_harga_global_now = total_harga_global.value;
-      const hargaBaru =
-        total_harga_global_now *
-        parseInt(moment(newValue[1]).diff(newValue[0], "days"));
-      let hargaLama =
-        total_harga_global_now *
-        parseInt(moment(oldValue[1]).diff(oldValue[0], "days"));
-      //console.log("e", total_harga_global_now * hariBaru, hariBaru);
-      if (hariBaru - hariLama >= 1) {
-        //total_harga_global.value = hargaBaru;
-        // total_harga_global_now *
-        //   parseInt(moment(newValue[1]).diff(newValue[0], "days")) -
-        // total_harga_global_now *
-        //   parseInt(moment(oldValue[1]).diff(oldValue[0], "days"));
-      } else {
-        total_harga_global.value = total_harga_global_now * 1;
-      }
+    if (
+      oldValue.length !== 0 &&
+      newValue.length === 2 &&
+      newValue[0] !== "" &&
+      newValue[1] !== "" &&
+      (oldValue[0] !== newValue[0] || oldValue[1] !== newValue[1])
+    ) {
+      Penyewaan.updatePeriode(newValue, no_invoice.value)
+        .then((data) => {
+          total_harga_global.value = parseFloat(data);
+        })
+        .catch((error) => {
+          throw new Error(error);
+        });
     }
   } catch (error) {
     alert("Gagal wtch periode" + error);
@@ -1065,7 +1034,6 @@ const initTabulator = () => {
 
           Penyewaan.readDetail(penyewaan.no_invoice)
             .then((data) => {
-              console.log(data[0]);
               no_invoice.value = penyewaan.no_invoice;
               startDate.value = data[0].periode[0];
               endDate.value = data[0].periode[1];
@@ -1110,7 +1078,7 @@ const initTabulator = () => {
           return `<div>
                 <div class="font-medium whitespace-nowrap">${moment(
                   cell.getData().tanggal_penyewaan
-                ).format("DD MMM YYYY HH:SS")}</div>
+                ).format("DD MMM YYYY")}</div>
               </div>`;
         },
       },
@@ -1200,7 +1168,7 @@ const initTabulator = () => {
                   periode.value = penyewaan.periode;
                   total_harga_global.value = parseFloat(penyewaan.total_harga);
                   total_bayar_global.value = parseFloat(penyewaan.total_bayar);
-                  kembalian.value = parseFloat(penyewaan.kembalian_sewa);
+                  kembalian.value = parseFloat(penyewaan.kembalian);
                   isEdit.value = true;
                   modal_utama.value = true;
                 })
@@ -1235,7 +1203,7 @@ const initTabulator = () => {
           return `<div>
                 <div class="font-medium whitespace-nowrap">${moment(
                   cell.getData().tanggal_penyewaan
-                ).format("DD MMM YYYY HH:SS")}</div>
+                ).format("DD MMM YYYY")}</div>
               </div>`;
         },
       },

@@ -5,6 +5,9 @@ DECLARE
     stok_lama INTEGER;
     sum_harga NUMERIC;
     jumlah_hari INTEGER;
+    tanggal_kembali DATE;
+    selisih_hari INTEGER;
+    denda NUMERIC;
 BEGIN
     IF (TG_OP = 'INSERT') THEN
         -- Update stok hanya ketika status penyewaan adalah false
@@ -34,30 +37,51 @@ BEGIN
     END IF;
 
     -- Menghitung total harga
-    SELECT sum(total_harga_detail_sewa) INTO sum_harga FROM penyewaan_detail WHERE no_invoice = NEW.no_invoice;
-
-
-IF (SELECT SUM(ARRAY_LENGTH(periode, 1)) FROM penyewaan) = 2 THEN
-    -- Menghitung selisih hari
     IF (TG_OP = 'DELETE') THEN
-        SELECT EXTRACT(DAY FROM AGE(to_date(periode[2], 'YYYY-MM-DD')::date, to_date(periode[1], 'YYYY-MM-DD')::date)) INTO jumlah_hari
-        FROM penyewaan WHERE no_invoice = OLD.no_invoice;
+        SELECT sum(total_harga_detail_sewa) INTO sum_harga FROM penyewaan_detail WHERE no_invoice = OLD.no_invoice;
     ELSE
-        SELECT EXTRACT(DAY FROM AGE(to_date(periode[2], 'YYYY-MM-DD')::date, to_date(periode[1], 'YYYY-MM-DD')::date)) INTO jumlah_hari
-        FROM penyewaan WHERE no_invoice = NEW.no_invoice;
-     END IF;
+        SELECT sum(total_harga_detail_sewa) INTO sum_harga FROM penyewaan_detail WHERE no_invoice = NEW.no_invoice;
+    END IF;
 
-    -- Mengupdate total harga dengan mengalikan jumlah hari
-    sum_harga := sum_harga * jumlah_hari;
+    IF (TG_OP = 'DELETE') THEN
+        IF (SELECT ARRAY_LENGTH(penyewaan.periode, 1) FROM penyewaan WHERE no_invoice = OLD.no_invoice) = 2 THEN
+            -- Menghitung selisih hari
+            SELECT DATE_PART('day', penyewaan.periode[2]::timestamp - penyewaan.periode[1]::timestamp) INTO jumlah_hari
+            FROM penyewaan WHERE no_invoice = OLD.no_invoice;
+
+            -- Mengupdate total harga dengan mengalikan jumlah hari
+            sum_harga := sum_harga * jumlah_hari;
+            SELECT penyewaan.periode[2] INTO tanggal_kembali FROM penyewaan WHERE no_invoice = OLD.no_invoice;
+
+            IF (tanggal_kembali < CURRENT_DATE) THEN
+                selisih_hari := DATE_PART('day', CURRENT_DATE - tanggal_kembali::timestamp);
+                denda := sum_harga * 0.05 * selisih_hari; -- Denda 5% dari total harga per hari keterlambatan
+                sum_harga := sum_harga + denda;
+            END IF;
+        END IF;
+    ELSE
+        IF (SELECT ARRAY_LENGTH(penyewaan.periode, 1) FROM penyewaan WHERE no_invoice = NEW.no_invoice) = 2 THEN
+            SELECT DATE_PART('day', penyewaan.periode[2]::timestamp - penyewaan.periode[1]::timestamp) INTO jumlah_hari
+            FROM penyewaan WHERE no_invoice = NEW.no_invoice;
+            sum_harga := sum_harga * jumlah_hari;
+            SELECT penyewaan.periode[2] INTO tanggal_kembali FROM penyewaan WHERE no_invoice = NEW.no_invoice;
+     RAISE NOTICE 'Value: %', jumlah_hari;
+            IF (tanggal_kembali < CURRENT_DATE) THEN
+                selisih_hari := DATE_PART('day', CURRENT_DATE - tanggal_kembali::timestamp);
+                denda := sum_harga * 0.05 * selisih_hari; -- Denda 5% dari total harga per hari keterlambatan
+                sum_harga := sum_harga + denda;
+            END IF;
+        END IF;
+    END IF;
 
     -- Update total harga sewa di tabel penyewaan
-END IF;
     IF (TG_OP = 'DELETE') THEN
         UPDATE penyewaan SET total_harga = sum_harga WHERE no_invoice = OLD.no_invoice;
     ELSE
         UPDATE penyewaan SET total_harga = sum_harga WHERE no_invoice = NEW.no_invoice;
-     END IF;
-    RETURN NULL; -- result is ignored since this is an AFTER trigger
+    END IF;
+ 
+    RETURN NULL;
 END;
 $set_penyewaan$ LANGUAGE plpgsql;
 

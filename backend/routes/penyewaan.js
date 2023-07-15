@@ -67,11 +67,12 @@ module.exports = function (db) {
     const id_outlet = req.query.id_outlet ? req.query.id_outlet : "";
     try {
       const { rows } = await db.query(
-        "INSERT INTO penyewaan(id_outlet) VALUES($1) returning *",
+        "INSERT INTO penyewaan(id_outlet) VALUES($1) returning no_invoice",
         [id_outlet]
       );
-      res.json(new Response(rows, true));
+      res.json(new Response(rows));
     } catch (e) {
+      console.error(e);
       res.status(500).json(new Response(e, false));
     }
   });
@@ -106,7 +107,7 @@ module.exports = function (db) {
   router.post("/upsewa", async function (req, res, next) {
     try {
       udatesewa = await db.query(
-        "UPDATE penyewaan SET total_harga_sewa = $1, total_bayar_sewa = $2, kembalian_sewa = $3 WHERE no_invoice = $4 returning *",
+        "UPDATE penyewaan SET total_harga = $1, total_bayar = $2, kembalian = $3 WHERE no_invoice = $4 returning *",
         [
           req.body.total_harga_sewa,
           req.body.total_bayar_sewa,
@@ -120,6 +121,7 @@ module.exports = function (db) {
       );
       res.json(new Response(rows, true));
     } catch (e) {
+      console.error(e);
       res.status(500).json(new Response(e, false));
     }
   });
@@ -139,7 +141,7 @@ module.exports = function (db) {
     }
   );
 
-  router.get(
+  router.delete(
     "/delete/:no_invoice",
     isLoggedIn,
     async function (req, res, next) {
@@ -154,6 +156,7 @@ module.exports = function (db) {
         );
         res.json(new Response({ message: "delete barang success" }, true));
       } catch (e) {
+        console.error(e);
         res.status(500).json(new Response(e, false));
       }
     }
@@ -180,6 +183,25 @@ module.exports = function (db) {
       }
     }
   );
+  router.put(
+    "/updperiode/:no_invoice",
+    isLoggedIn,
+    async function (req, res, next) {
+      try {
+        const startDate = req.body.periode[0];
+        const endDate = req.body.periode[1];
+        const id = req.params.no_invoice;
+        const { rows } = await db.query(
+          "UPDATE penyewaan SET periode = ARRAY[$1, $2] WHERE no_invoice = $3 RETURNING total_harga",
+          [startDate, endDate, id]
+        );
+        res.json(new Response(rows));
+      } catch (e) {
+        console.log(e);
+        res.status(500).json(new Response(e, false));
+      }
+    }
+  );
 
   router.delete(
     "/delitem/:id_detail_sewa",
@@ -190,9 +212,9 @@ module.exports = function (db) {
           "DELETE FROM penyewaan_detail WHERE id_detail_sewa = $1",
           [req.params.id_detail_sewa]
         );
-        console.log("delDetail", delDetail);
+        //console.log("delDetail", delDetail);
         const { rows } = await db.query(
-          "SELECT SUM(total_harga_detail_sewa)  AS total FROM penyewaan_detail WHERE no_invoice = $1",
+          "SELECT total_harga AS total FROM penyewaan WHERE no_invoice = $1",
           [req.body.no_invoice]
         );
         res.json(new Response(rows, true));

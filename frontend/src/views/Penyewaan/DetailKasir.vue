@@ -28,9 +28,13 @@
             ? "-"
             : periode[1] === ""
             ? "-"
-            : moment(periode[1]).diff(periode[0], "days")
+            : moment(periode[1]).diff(periode[0], "days") + " Hari"
         }}
-        Hari
+        {{
+          moment().diff(periode[1], "days") > 0
+            ? ", Terlambat " + moment().diff(periode[1], "days") + " Hari"
+            : ""
+        }}
       </p>
     </div>
     <div class="box p-2 mt-2">
@@ -113,6 +117,12 @@ export default {
       required: true,
     },
   },
+  data() {
+    return {
+      today: moment(),
+      jatuhTempo: moment(),
+    };
+  },
   setup(props) {
     const startDate = ref(props.startDate);
     const endDate = ref(props.endDate);
@@ -154,6 +164,12 @@ export default {
       () => props.periode,
       (newperiode) => {
         periode.value = newperiode;
+      }
+    );
+    watch(
+      () => props.totalBayarGlobal,
+      (newbayar) => {
+        totalBayarGlobal.value = newbayar;
       }
     );
 

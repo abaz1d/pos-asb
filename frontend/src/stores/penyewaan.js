@@ -62,8 +62,7 @@ export const usePenyewaanStore = defineStore({
     },
     async addPenyewaan(
       no_invoice,
-      startDate,
-      endDate,
+      periode,
       total_harga_global,
       total_bayar_global,
       kembalian,
@@ -74,8 +73,7 @@ export const usePenyewaanStore = defineStore({
       if (!isEdit) {
         this.rawPenyewaans.push({
           no_invoice,
-          startDate,
-          endDate,
+          periode,
           total_harga_sewa,
           total_bayar_sewa,
           kembalian,
@@ -84,8 +82,6 @@ export const usePenyewaanStore = defineStore({
       try {
         const { data } = await request.post("penyewaan/upsewa", {
           no_invoice,
-          startDate,
-          endDate,
           total_harga_sewa,
           total_bayar_sewa,
           kembalian,
@@ -109,7 +105,7 @@ export const usePenyewaanStore = defineStore({
         (item) => item.no_invoice !== no_invoice
       );
       request
-        .get(`penyewaan/delete/${no_invoice}`)
+        .delete(`penyewaan/delete/${no_invoice}`)
         .then((res) => {
           if (res.success) {
             return res.success;
@@ -138,6 +134,20 @@ export const usePenyewaanStore = defineStore({
         const { data } = await request.get(`/penyewaan/details/${no_invoice}`);
         this.rawPenyewaanDetail = data.data;
         return data.data;
+      } catch (error) {
+        throw new Error(error);
+      }
+    },
+    async updatePeriode(periode, no_invoice) {
+      try {
+        const { data } = await request.put(
+          `penyewaan/updperiode/${no_invoice}`,
+          { periode }
+        );
+
+        if (data.success) {
+          return data.data[0].total_harga;
+        }
       } catch (error) {
         throw new Error(error);
       }
