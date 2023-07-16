@@ -280,29 +280,23 @@
 
                               <div class="col-span-6 sm:col-span-3">
                                 <label
-                                  for="kategoriGudang"
+                                  for="kategoriTransaksi"
                                   class="block text-sm font-medium text-gray-700"
-                                  >Kategori Gudang</label
+                                  >Kategori Transaksi
+                                  {{ kategoriTransaksi }}</label
                                 >
                                 <TomSelect
-                                  v-model="kategoriGudangVarian"
-                                  id="kategoriGudang"
+                                  v-model="kategoriTransaksi"
+                                  id="kategoriTransaksi"
                                   class="mt-1 w-full"
                                   aria-label="Default select example"
                                   required
                                 >
                                   <option value="kosong" disabled>
-                                    &gt;-- Pilih Gudang &lt;--
+                                    &gt;-- Pilih Kategori Transaksi &lt;--
                                   </option>
-                                  <option
-                                    v-for="gudang in data.gudang"
-                                    :key="gudang.id_gudang"
-                                    :gudang="gudang"
-                                    :value="gudang.id_gudang"
-                                  >
-                                    {{ gudang.id_gudang }} -
-                                    {{ gudang.nama_gudang }}
-                                  </option>
+                                  <option value="J">Jual</option>
+                                  <option value="S">Sewa</option>
                                 </TomSelect>
                               </div>
 
@@ -343,32 +337,63 @@
                                 </div>
                               </div>
 
-                              <div class="col-span-6 sm:col-span-3">
-                                <label
-                                  for="satuanVarian"
-                                  class="block text-sm font-medium text-gray-700"
-                                  >Satuan Varian</label
-                                >
-                                <TomSelect
-                                  v-model="satuanVarian"
-                                  id="satuanVarian"
-                                  class="mt-1 w-full"
-                                  aria-label="Default select example"
-                                  required
-                                >
-                                  <option value="kosong" disabled>
-                                    &gt;-- Pilih Satuan &lt;--
-                                  </option>
-                                  <option
-                                    v-for="satuan in data.satuan"
-                                    :key="satuan.id_satuan"
-                                    :satuan="satuan"
-                                    :value="satuan.id_satuan"
+                              <div
+                                class="col-span-6 sm:col-span-3 mb-0 grid grid-cols-6 gap-2"
+                              >
+                                <div class="col-span-3">
+                                  <label
+                                    for="satuanVarian"
+                                    class="block text-sm font-medium text-gray-700"
+                                    >Satuan Varian</label
                                   >
-                                    {{ satuan.id_satuan }} -
-                                    {{ satuan.nama_satuan }}
-                                  </option>
-                                </TomSelect>
+                                  <TomSelect
+                                    v-model="satuanVarian"
+                                    id="satuanVarian"
+                                    class="mt-1 w-full"
+                                    aria-label="Default select example"
+                                    required
+                                  >
+                                    <option value="kosong" disabled>
+                                      &gt;-- Pilih Satuan &lt;--
+                                    </option>
+                                    <option
+                                      v-for="satuan in data.satuan"
+                                      :key="satuan.id_satuan"
+                                      :satuan="satuan"
+                                      :value="satuan.id_satuan"
+                                    >
+                                      {{ satuan.id_satuan }} -
+                                      {{ satuan.nama_satuan }}
+                                    </option>
+                                  </TomSelect>
+                                </div>
+                                <div class="col-span-3">
+                                  <label
+                                    for="kategoriGudang"
+                                    class="block text-sm font-medium text-gray-700"
+                                    >Kategori Gudang</label
+                                  >
+                                  <TomSelect
+                                    v-model="kategoriGudangVarian"
+                                    id="kategoriGudang"
+                                    class="mt-1 w-full"
+                                    aria-label="Default select example"
+                                    required
+                                  >
+                                    <option value="kosong" disabled>
+                                      &gt;-- Pilih Gudang &lt;--
+                                    </option>
+                                    <option
+                                      v-for="gudang in data.gudang"
+                                      :key="gudang.id_gudang"
+                                      :gudang="gudang"
+                                      :value="gudang.id_gudang"
+                                    >
+                                      {{ gudang.id_gudang }} -
+                                      {{ gudang.nama_gudang }}
+                                    </option>
+                                  </TomSelect>
+                                </div>
                               </div>
 
                               <div class="col-span-6 sm:col-span-3">
@@ -843,6 +868,7 @@ const inputGambarVarian = ref("");
 const hargaBeliVarian = ref("");
 const hargaJualVarian = ref("");
 const kategoriGudangVarian = ref("kosong");
+const kategoriTransaksi = ref("kosong");
 const satuanVarian = ref("kosong");
 const kategoriBarangVarian = ref("kosong");
 const stokGlobal = ref(0);
@@ -924,6 +950,7 @@ const addVarian = () => {
         harga_beli: parseInt(hargaBeliVarian.value),
         satuan_varian: satuanVarian.value,
         gudang: kategoriGudangVarian.value,
+        transaksi: kategoriTransaksi.value,
 
         file: file.value,
         harga_jual: parseInt(hargaJualVarian.value),
@@ -937,6 +964,7 @@ const addVarian = () => {
         harga_beli: hargaBeliVarian.value,
         satuan_varian: satuanVarian.value,
         gudang: kategoriGudangVarian.value,
+        transaksi: kategoriTransaksi.value,
 
         file: file.value,
         harga_jual: hargaJualVarian.value,
@@ -945,7 +973,7 @@ const addVarian = () => {
     initTabulator();
     resetModal();
   } catch (error) {
-    alert("Varian Tambah Data", error);
+    alert("Varian Tambah Data" + error);
   }
 };
 
@@ -960,6 +988,7 @@ const updateVarian = () => {
       harga_jual: parseInt(hargaJualVarian.value),
       satuan_varian: satuanVarian.value,
       gudang: kategoriGudangVarian.value,
+      transaksi: kategoriTransaksi.value,
 
       gambarLama: gambar_lama.value,
       file_baru: file.value,
@@ -998,7 +1027,6 @@ const closeQrScanner = () => {
 const resultScan = (result) => {
   // ntar di concat ma id outlet
   inputIdVarian.value = result;
-  console.log("hasil", inputIdVarian);
   isModalScanner.value = false;
   qrScanner.value.closeQrScanner();
 };
@@ -1019,6 +1047,7 @@ const resetModal = () => {
   hargaBeliVarian.value = "";
   hargaJualVarian.value = "";
   kategoriGudangVarian.value = "kosong";
+  kategoriTransaksi.value = "kosong";
   satuanVarian.value = "kosong";
   kategoriBarangVarian.value = "kosong";
   stokGlobal.value = 0;
@@ -1353,6 +1382,23 @@ const initTabulator = () => {
             },
           },
           {
+            title: "KATEGORI",
+            minWidth: 50,
+            headerHozAlign: "center",
+            field: "kategori",
+            hozAlign: "center",
+            vertAlign: "middle",
+            print: false,
+            download: false,
+            formatter(cell) {
+              return `<div>
+                <div class="font-medium whitespace-nowrap">${
+                  cell.getData().kategori === false ? "Jual" : "Sewa"
+                }</div>
+              </div>`;
+            },
+          },
+          {
             title: "HARGA BELI",
             headerHozAlign: "center",
             minWidth: 150,
@@ -1412,7 +1458,6 @@ const initTabulator = () => {
                     .then((detail) => {
                       isEdit.value = true;
                       modalVarian.value = true;
-                      console.log("detail", detail);
                       data.value = detail;
                       gambar_lama.value = detail.item.gambar_varian;
                       file.value = "";
@@ -1421,6 +1466,8 @@ const initTabulator = () => {
                       kategoriBarangVarian.value = detail.item.id_barang;
                       satuanVarian.value = detail.item.id_satuan;
                       kategoriGudangVarian.value = detail.item.id_gudang;
+                      kategoriTransaksi.value =
+                        detail.item.kategori === false ? "J" : "S";
                       stokGlobal.value = detail.item.stok_global;
                       stokTerpakai.value = detail.item.stok_terpakai;
                       hargaBeliVarian.value = detail.item.harga_beli_varian;
@@ -1478,6 +1525,20 @@ const initTabulator = () => {
             visible: false,
             print: true,
             download: true,
+          },
+          {
+            title: "KATEGORI",
+            field: "kategori",
+            visible: false,
+            print: true,
+            download: true,
+            formatter(cell) {
+              return `<div>
+                <div class="font-medium whitespace-nowrap">${
+                  cell.getData().kategori === false ? "Jual" : "Sewa"
+                }</div>
+              </div>`;
+            },
           },
           {
             title: "HARGA BELI",

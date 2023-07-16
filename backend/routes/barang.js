@@ -18,11 +18,11 @@ module.exports = function (db) {
         let argumentSQL;
         if (id_outlet == "") {
           reqSQL =
-            "SELECT v.gambar_varian, b.id_barang, b.nama_barang, v.id_varian, v.nama_varian, v.stok_global, s.nama_satuan, v.harga_beli_varian, v.harga_jual_varian FROM varian as v LEFT JOIN barang as b ON v.id_barang = b.id_barang LEFT JOIN satuan AS s ON v.id_satuan = s.id_satuan WHERE v.id_barang = $1;";
+            "SELECT  v.kategori, v.gambar_varian, b.id_barang, b.nama_barang, v.id_varian, v.nama_varian, v.stok_global, s.nama_satuan, v.harga_beli_varian, v.harga_jual_varian FROM varian as v LEFT JOIN barang as b ON v.id_barang = b.id_barang LEFT JOIN satuan AS s ON v.id_satuan = s.id_satuan WHERE v.id_barang = $1;";
           argumentSQL = [id_barang];
         } else {
           reqSQL =
-            "SELECT sv.id_sub_varian, v.gambar_varian, b.id_barang, b.nama_barang, v.id_varian, v.nama_varian, sv.stok_varian, s.nama_satuan, o.nama_outlet, v.harga_beli_varian, v.harga_jual_varian FROM sub_varian AS sv LEFT JOIN varian AS v ON sv.id_varian = v.id_varian LEFT JOIN barang AS b ON v.id_barang = b.id_barang LEFT JOIN outlet AS o ON sv.id_outlet = o.id_outlet LEFT JOIN satuan AS s ON v.id_satuan = s.id_satuan WHERE b.id_barang = $1 AND o.id_outlet = $2";
+            "SELECT sv.id_sub_varian, v.kategori, v.gambar_varian, b.id_barang, b.nama_barang, v.id_varian, v.nama_varian, sv.stok_varian, s.nama_satuan, o.nama_outlet, v.harga_beli_varian, v.harga_jual_varian FROM sub_varian AS sv LEFT JOIN varian AS v ON sv.id_varian = v.id_varian LEFT JOIN barang AS b ON v.id_barang = b.id_barang LEFT JOIN outlet AS o ON sv.id_outlet = o.id_outlet LEFT JOIN satuan AS s ON v.id_satuan = s.id_satuan WHERE b.id_barang = $1 AND o.id_outlet = $2";
           argumentSQL = [id_barang, id_outlet];
         }
         db.query(reqSQL, argumentSQL, (err, varian) => {
@@ -43,7 +43,7 @@ module.exports = function (db) {
   router.get("/laporan", async function (req, res, next) {
     try {
       const { rows } = await db.query(
-        "SELECT v.gambar_varian, b.nama_barang, v.id_varian, v.nama_varian, stok.stok_global, s.nama_satuan, v.harga_beli_varian, v.harga_jual_varian FROM varian as v LEFT JOIN barang as b ON v.id_barang = b.id_barang LEFT JOIN satuan AS s ON v.id_satuan = s.id_satuan LEFT JOIN (SELECT id_varian, sum(stok_varian) AS stok_global FROM sub_varian GROUP  BY 1) stok ON v.id_varian = stok.id_varian"
+        "SELECT v.kategori,, v.gambar_varian, b.nama_barang, v.id_varian, v.nama_varian, stok.stok_global, s.nama_satuan, v.harga_beli_varian, v.harga_jual_varian FROM varian as v LEFT JOIN barang as b ON v.id_barang = b.id_barang LEFT JOIN satuan AS s ON v.id_satuan = s.id_satuan LEFT JOIN (SELECT id_varian, sum(stok_varian) AS stok_global FROM sub_varian GROUP  BY 1) stok ON v.id_varian = stok.id_varian"
       );
       res.json(new Response({ rows }));
     } catch (e) {
@@ -76,71 +76,99 @@ module.exports = function (db) {
       let gambar;
       let uploadPath;
       if (!req.files || Object.keys(req.files).length === 0) {
-        return res
-          .status(400)
-          .json(new Response({ message: "No files were uploaded." }, false));
-      }
-      // The name of the input field (i.e. "gambar") is used to retrieve the uploaded file
-      gambar = req.files.file;
-      const filename = `A${Date.now()}-${gambar.name}`;
-      uploadPath = path.join(__dirname, "..", "public", "gambar", filename);
-      // Use the mv() method to place the file somewhere on your server
-      gambar.mv(uploadPath, function (err) {
-        if (err) throw new Error(err);
-        if (Object.keys(req.body).length < 8) {
-          console.log("7 body");
-          db.query(
-            `WITH inserted AS (INSERT INTO varian(nama_varian, id_barang,
+        console.log("No files to upload");
+        // return res
+        //   .status(400)
+        //   .json(new Response({ message: "No files were uploaded." }, false));
+        db.query(
+          `WITH inserted AS (INSERT INTO varian(nama_varian, id_barang,
             stok_global, harga_beli_varian, id_satuan,
-             id_gudang, gambar_varian, harga_jual_varian) 
+             id_gudang, kategori, harga_jual_varian) 
               VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *) SELECT * FROM inserted LEFT JOIN barang ON inserted.id_barang = barang.id_barang`,
-            [
-              req.body.nama_varian,
-              req.body.kategori_barang,
-              req.body.stok_varian,
-              req.body.harga_beli,
-              req.body.satuan_varian,
-              req.body.gudang,
-              filename,
-              req.body.harga_jual,
-            ]
-          )
-            .then((rows) => {
-              let data = rows.rows[0];
-              res.json(new Response({ data }));
-            })
-            .catch((err) => {
-              throw new Error(err);
-            });
-        } else {
-          console.log("7 lebih");
-          db.query(
-            `WITH inserted AS (INSERT INTO varian(id_varian ,nama_varian, id_barang,
+          [
+            req.body.nama_varian,
+            req.body.kategori_barang,
+            req.body.stok_varian,
+            req.body.harga_beli,
+            req.body.satuan_varian,
+            req.body.gudang,
+            req.body.kategori === "S" ? true : false,
+            req.body.harga_jual,
+          ]
+        )
+          .then((rows) => {
+            let data = rows.rows[0];
+            res.json(new Response({ data }));
+          })
+          .catch((err) => {
+            throw new Error(err);
+          });
+      } else {
+        // The name of the input field (i.e. "gambar") is used to retrieve the uploaded file
+        gambar = req.files.file;
+        const filename = `A${Date.now()}-${gambar.name}`;
+        uploadPath = path.join(__dirname, "..", "public", "gambar", filename);
+        // Use the mv() method to place the file somewhere on your server
+        gambar.mv(uploadPath, function (err) {
+          if (err) throw new Error(err);
+          if (Object.keys(req.body).length < 10) {
+            console.log("8 body");
+            db.query(
+              `WITH inserted AS (INSERT INTO varian(nama_varian, id_barang,
             stok_global, harga_beli_varian, id_satuan,
-             id_gudang, gambar_varian, harga_jual_varian) 
+             id_gudang, kategori, gambar_varian, harga_jual_varian) 
               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *) SELECT * FROM inserted LEFT JOIN barang ON inserted.id_barang = barang.id_barang`,
-            [
-              req.body.id_varian,
-              req.body.nama_varian,
-              req.body.kategori_barang,
-              req.body.stok_varian,
-              req.body.harga_beli,
-              req.body.satuan_varian,
-              req.body.gudang,
-              filename,
-              req.body.harga_jual,
-            ]
-          )
-            .then((rows) => {
-              let data = rows.rows[0];
-              res.json(new Response({ data }));
-            })
-            .catch((err) => {
-              throw new Error(err);
-            });
-        }
-      });
+              [
+                req.body.nama_varian,
+                req.body.kategori_barang,
+                req.body.stok_varian,
+                req.body.harga_beli,
+                req.body.satuan_varian,
+                req.body.gudang,
+                req.body.kategori === "S" ? true : false,
+                filename,
+                req.body.harga_jual,
+              ]
+            )
+              .then((rows) => {
+                let data = rows.rows[0];
+                res.json(new Response({ data }));
+              })
+              .catch((err) => {
+                throw new Error(err);
+              });
+          } else {
+            console.log("7 lebih");
+            db.query(
+              `WITH inserted AS (INSERT INTO varian(id_varian ,nama_varian, id_barang,
+            stok_global, harga_beli_varian, id_satuan,
+             id_gudang, kategori, gambar_varian, harga_jual_varian) 
+              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *) SELECT * FROM inserted LEFT JOIN barang ON inserted.id_barang = barang.id_barang`,
+              [
+                req.body.id_varian,
+                req.body.nama_varian,
+                req.body.kategori_barang,
+                req.body.stok_varian,
+                req.body.harga_beli,
+                req.body.satuan_varian,
+                req.body.gudang,
+                req.body.kategori === "S" ? true : false,
+                filename,
+                req.body.harga_jual,
+              ]
+            )
+              .then((rows) => {
+                let data = rows.rows[0];
+                res.json(new Response({ data }));
+              })
+              .catch((err) => {
+                throw new Error(err);
+              });
+          }
+        });
+      }
     } catch (error) {
+      console.error(error);
       res.status(500).json(new Response(error, false));
     }
   });
@@ -161,7 +189,7 @@ module.exports = function (db) {
           var response = []; // Pindahkan variabel response di luar loop
 
           for (let i = 1; i < data.length; i++) {
-            if (data[i].length === 7) {
+            if (data[i].length === 8) {
               const nama_varian = data[i][0];
               const id_barang = data[i][1];
               const harga_beli_varian = data[i][2];
@@ -169,7 +197,8 @@ module.exports = function (db) {
               const id_gudang = data[i][4];
               const harga_jual_varian = data[i][5];
               const stok_global = data[i][6];
-              const query = `INSERT INTO varian(nama_varian, id_barang, harga_beli_varian, id_satuan, id_gudang, harga_jual_varian, stok_global)  VALUES ($1, $2, $3, $4, $5, $6, $7)`;
+              const kategori = data[i][7] === "S" ? true : false;
+              const query = `INSERT INTO varian(nama_varian, id_barang, harga_beli_varian, id_satuan, id_gudang, harga_jual_varian, stok_global, kategori)  VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`;
 
               // Tambahkan await di depan db.query() untuk menunggu query selesai
               await db
@@ -181,6 +210,7 @@ module.exports = function (db) {
                   id_gudang,
                   harga_jual_varian,
                   stok_global,
+                  kategori,
                 ])
                 .then((rows) => {
                   response = response.concat(rows.rows);
@@ -250,6 +280,7 @@ module.exports = function (db) {
             sat.nama_satuan,
             gud.id_gudang,
             gud.nama_gudang,
+            var.kategori,
             var.gambar_varian
       FROM varian var
       INNER JOIN barang bar ON bar.id_barang = var.id_barang
@@ -278,7 +309,7 @@ module.exports = function (db) {
 
       if (!req.files || Object.keys(req.files).length === 0) {
         db.query(
-          `UPDATE varian SET nama_varian = $1, id_barang = $2, stok_global = $3, harga_beli_varian = $4, id_satuan = $5, id_gudang = $6, gambar_varian = $7, harga_jual_varian = $8 WHERE id_varian = $9 RETURNING * `,
+          `UPDATE varian SET nama_varian = $1, id_barang = $2, stok_global = $3, harga_beli_varian = $4, id_satuan = $5, id_gudang = $6, kategori = $7, gambar_varian = $8, harga_jual_varian = $9 WHERE id_varian = $10 RETURNING * `,
           [
             req.body.nama_varian,
             req.body.kategori_barang,
@@ -286,6 +317,7 @@ module.exports = function (db) {
             req.body.harga_beli,
             req.body.satuan_varian,
             req.body.gudang,
+            req.body.kategori === "S" ? true : false,
             gambar_lama,
             req.body.harga_jual,
             req.params.id,
@@ -299,6 +331,7 @@ module.exports = function (db) {
             throw new Error(err);
           });
       } else {
+        console.log(req.body);
         gambar = req.files.file;
         const filename = `A${Date.now()}-${gambar.name}`;
         uploadPath = path.join(__dirname, "..", "public", "gambar", filename);
@@ -307,10 +340,36 @@ module.exports = function (db) {
           "..",
           "public",
           "gambar",
-          gambar_lama
+          req.body.gambar_lama
         );
-        fs.unlink(deletePath, (err) => {
-          if (err) throw new Error(err);
+        if (req.body.gambar_lama != "" && fs.existsSync(deletePath)) {
+          fs.unlink(deletePath, (err) => {
+            if (err) throw new Error(err);
+            gambar.mv(uploadPath, function (err) {
+              if (err) throw new Error(err);
+
+              db.query(
+                `UPDATE varian SET nama_varian = $1, id_barang = $2, stok_global = $3, harga_beli_varian = $4, id_satuan = $5, id_gudang = $6, gambar_varian = $7, harga_jual_varian = $8 WHERE id_varian = $9 RETURNING *`,
+                [
+                  req.body.nama_varian,
+                  req.body.kategori_barang,
+                  req.body.stok_varian,
+                  req.body.harga_beli,
+                  req.body.satuan_varian,
+                  req.body.gudang,
+                  filename,
+                  req.body.harga_jual,
+                  req.params.id,
+                ],
+                (err, rows) => {
+                  if (err) throw new Error(err);
+                  let data = rows.rows[0];
+                  res.json(new Response({ data }));
+                }
+              );
+            });
+          });
+        } else {
           gambar.mv(uploadPath, function (err) {
             if (err) throw new Error(err);
 
@@ -334,9 +393,10 @@ module.exports = function (db) {
               }
             );
           });
-        });
+        }
       }
     } catch (error) {
+      console.error(error);
       res.status(500).json(new Response(error, false));
     }
   });
@@ -382,7 +442,7 @@ module.exports = function (db) {
         `SELECT * FROM (
         SELECT var.id_varian, var.nama_varian, svar.id_outlet FROM varian var LEFT JOIN sub_varian svar ON var.id_varian = svar.id_varian) as X
       WHERE (select count(*) FROM (
-        SELECT v.id_varian, v.nama_varian, sv.id_outlet FROM varian v LEFT JOIN sub_varian sv ON v.id_varian = sv.id_varian) as Y
+        SELECT v.id_varian, v.kategori, v.nama_varian, sv.id_outlet FROM varian v LEFT JOIN sub_varian sv ON v.id_varian = sv.id_varian) as Y
          WHERE X.id_varian = Y.id_varian) = 1`,
         (err, rowsV) => {
           if (err) throw new Error(err);
@@ -434,6 +494,7 @@ module.exports = function (db) {
       b.nama_barang, 
       v.id_varian, 
       v.nama_varian, 
+      v.kategori,
       v.stok_global,
       st.stok_terpakai,
       (v.stok_global - st.stok_terpakai) AS stok_tersisa,
