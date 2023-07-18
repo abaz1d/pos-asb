@@ -372,7 +372,7 @@ module.exports = function (db) {
         } else {
           gambar.mv(uploadPath, function (err) {
             if (err) throw new Error(err);
-
+            console.log("file upload", filename);
             db.query(
               `UPDATE varian SET nama_varian = $1, id_barang = $2, stok_global = $3, harga_beli_varian = $4, id_satuan = $5, id_gudang = $6, gambar_varian = $7, harga_jual_varian = $8 WHERE id_varian = $9 RETURNING *`,
               [

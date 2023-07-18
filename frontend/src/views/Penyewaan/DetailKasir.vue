@@ -90,7 +90,12 @@ import { currencyFormatter } from "@/utils/helper";
 import moment from "moment";
 
 export default {
-  emits: ["update:startDate", "update:endDate", "update:totalBayarGlobal"],
+  emits: [
+    "update:startDate",
+    "update:endDate",
+    "update:totalBayarGlobal",
+    "update:kembalian",
+  ],
   props: {
     startDate: {
       type: String,
@@ -128,6 +133,7 @@ export default {
     const endDate = ref(props.endDate);
     const periode = ref(props.periode);
     const totalBayarGlobal = ref(props.totalBayarGlobal);
+    const totalHargaGlobal = ref(props.totalHargaGlobal);
     const { emit } = getCurrentInstance();
 
     function updateTotalBayar(event) {
@@ -172,12 +178,28 @@ export default {
         totalBayarGlobal.value = newbayar;
       }
     );
+    watch(
+      () => props.totalHargaGlobal,
+      (newharga) => {
+        if (
+          props.periode.length == 2 &&
+          moment().diff(props.periode[1], "days") > 0
+        ) {
+          let denda = newharga * 0.05 * moment().diff(props.periode[1], "days");
+          totalHargaGlobal.value = newharga + denda;
+          emit("update:kembalian", totalBayarGlobal.value - newharga - denda);
+        } else {
+          totalHargaGlobal.value = newharga;
+        }
+      }
+    );
 
     return {
       startDate,
       moment,
       endDate,
       totalBayarGlobal,
+      totalHargaGlobal,
       currencyFormatter,
       updateTotalBayar,
     };

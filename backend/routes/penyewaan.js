@@ -1,5 +1,6 @@
 var express = require("express");
 var router = express.Router();
+const fs = require("fs");
 var path = require("path");
 const { isLoggedIn, Response } = require("../helpers/util");
 
@@ -106,23 +107,122 @@ module.exports = function (db) {
   });
   router.post("/upsewa", async function (req, res, next) {
     try {
-      udatesewa = await db.query(
-        "UPDATE penyewaan SET total_harga = $1, total_bayar = $2, kembalian = $3 WHERE no_invoice = $4 returning *",
-        [
-          req.body.total_harga_sewa,
-          req.body.total_bayar_sewa,
-          req.body.kembalian,
-          req.body.no_invoice,
-        ]
+      const deletePaths = [];
+      const updateColumns = [];
+      let updateValues = [
+        req.body.total_harga,
+        req.body.total_bayar,
+        req.body.kembalian,
+        req.body.status,
+      ];
+
+      // Fungsi untuk menambahkan path upload, delete, dan kolom update yang sesuai
+      const addUploadPathAndDeletePathAndColumn = (
+        file,
+        gambarLama,
+        column,
+        folder
+      ) => {
+        if (file) {
+          const fileNamePrefix = getFilePrefix(column);
+          const fileName = `${fileNamePrefix}${Date.now()}-${file.name}`;
+          const uploadPath = path.join(
+            __dirname,
+            "..",
+            "public",
+            folder,
+            fileName
+          );
+          file.mv(uploadPath, (err) => {
+            if (err) throw new Error(err);
+          });
+
+          if (gambarLama !== "") {
+            const deletePath = path.join(
+              __dirname,
+              "..",
+              "public",
+              folder,
+              gambarLama
+            );
+            deletePaths.push(deletePath);
+          }
+
+          updateColumns.push(`${column} = $${updateValues.length + 1}::bytea`);
+          updateValues.push(Buffer.from(fileName, "utf-8"));
+        }
+      };
+
+      // Fungsi untuk mendapatkan prefix nama file berdasarkan jenis file
+      const getFilePrefix = (column) => {
+        if (column === "jaminan") {
+          return "JM";
+        } else if (column === "bukti_penyerahan") {
+          return "SR";
+        } else if (column === "bukti_pengembalian") {
+          return "KM";
+        }
+        return "";
+      };
+      if (req.files && req.files.file_jaminan) {
+        addUploadPathAndDeletePathAndColumn(
+          req.files.file_jaminan,
+          req.body.gambar_lama_jaminan,
+          "jaminan",
+          "jaminan"
+        );
+      }
+      if (req.files && req.files.file_penyerahan) {
+        addUploadPathAndDeletePathAndColumn(
+          req.files.file_penyerahan,
+          req.body.gambar_lama_penyerahan,
+          "bukti_penyerahan",
+          "penyerahan"
+        );
+      }
+      if (req.files && req.files.file_pengembalian) {
+        addUploadPathAndDeletePathAndColumn(
+          req.files.file_pengembalian,
+          req.body.gambar_lama_pengembalian,
+          "bukti_pengembalian",
+          "pengembalian"
+        );
+      }
+
+      let updateQuery = "UPDATE penyewaan SET ";
+      updateQuery += updateColumns.join(", ");
+
+      if (updateColumns.length > 0) {
+        updateQuery += ", ";
+      }
+
+      updateQuery +=
+        "total_harga = $1, total_bayar = $2, kembalian = $3, status = $4";
+      updateQuery +=
+        " WHERE no_invoice = $" + (updateValues.length + 1) + " RETURNING *";
+      // console.log("q", updateQuery);
+      // console.log("p", updateValues.concat(req.body.no_invoice));
+      const udatesewa = await db.query(
+        updateQuery,
+        updateValues.concat(req.body.no_invoice)
       );
+
+      deletePaths.forEach((deletePath) => {
+        if (fs.existsSync(deletePath)) {
+          fs.unlink(deletePath, (err) => {
+            if (err) throw new Error(err);
+          });
+        }
+      });
+
       const { rows } = await db.query(
         "SELECT * FROM penyewaan WHERE no_invoice = $1",
         [req.body.no_invoice]
       );
       res.json(new Response(rows, true));
-    } catch (e) {
-      console.error(e);
-      res.status(500).json(new Response(e, false));
+    } catch (error) {
+      console.error(error);
+      res.status(500).json(new Response(null, false, "Internal server error"));
     }
   });
   router.get(

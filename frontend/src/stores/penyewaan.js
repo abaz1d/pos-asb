@@ -66,10 +66,57 @@ export const usePenyewaanStore = defineStore({
       total_harga_global,
       total_bayar_global,
       kembalian,
+      status,
+      file_jaminan,
+      file_penyerahan,
+      file_pengembalian,
+      gambar_lama_jaminan,
+      gambar_lama_penyerahan,
+      gambar_lama_pengembalian,
       isEdit
     ) {
       const total_harga_sewa = total_harga_global;
       const total_bayar_sewa = total_bayar_global;
+      const formData = new FormData();
+      formData.append("no_invoice", no_invoice);
+      formData.append("periode", periode);
+      formData.append("total_harga", total_harga_global);
+      formData.append("total_bayar", total_bayar_global);
+      formData.append("kembalian", kembalian);
+      formData.append("status", status);
+      formData.append("file_jaminan", file_jaminan);
+      formData.append("file_penyerahan", file_penyerahan);
+      formData.append("file_pengembalian", file_pengembalian);
+      console.log(gambar_lama_jaminan);
+      if (gambar_lama_jaminan != null) {
+        formData.append(
+          "gambar_lama_jaminan",
+          gambar_lama_jaminan.data.map((b) => String.fromCharCode(b)).join("")
+        );
+      } else {
+        formData.append("gambar_lama_jaminan", "");
+      }
+      if (gambar_lama_penyerahan != null) {
+        formData.append(
+          "gambar_lama_penyerahan",
+          gambar_lama_penyerahan.data
+            .map((b) => String.fromCharCode(b))
+            .join("")
+        );
+      } else {
+        formData.append("gambar_lama_penyerahan", "");
+      }
+      if (gambar_lama_pengembalian != null) {
+        formData.append(
+          "gambar_lama_pengembalian",
+          gambar_lama_pengembalian.data
+            .map((b) => String.fromCharCode(b))
+            .join("")
+        );
+      } else {
+        formData.append("gambar_lama_pengembalian", "");
+      }
+
       if (!isEdit) {
         this.rawPenyewaans.push({
           no_invoice,
@@ -77,15 +124,16 @@ export const usePenyewaanStore = defineStore({
           total_harga_sewa,
           total_bayar_sewa,
           kembalian,
+          status,
         });
       }
+      const headers = { "Content-Type": "multipart/form-data" };
       try {
-        const { data } = await request.post("penyewaan/upsewa", {
-          no_invoice,
-          total_harga_sewa,
-          total_bayar_sewa,
-          kembalian,
-        });
+        const { data } = await request.post(
+          "penyewaan/upsewa",
+          formData,
+          headers
+        );
         if (data.success) {
           this.rawPenyewaans = this.rawPenyewaans.map((item) => {
             if (item.no_invoice == no_invoice) {

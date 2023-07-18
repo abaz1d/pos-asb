@@ -1453,10 +1453,10 @@ const initTabulator = () => {
               dom(a).on("click", "a", function (e) {
                 if (e.id === "edit") {
                   const varian = cell.getData();
+                  isEdit.value = true;
                   url.value = getImgUrl(varian.gambar_varian);
                   Barang.updateVarianGet(varian.id_varian)
                     .then((detail) => {
-                      isEdit.value = true;
                       modalVarian.value = true;
                       data.value = detail;
                       gambar_lama.value = detail.item.gambar_varian;
@@ -1615,7 +1615,11 @@ const getImgUrl = (gambar_varian) => {
     }
     return gambar_lama_preview.value;
   } else {
-    return `${new URL(window.location.origin)}` + "404.png";
+    if (isEdit.value) {
+      return "";
+    } else {
+      return `${new URL(window.location.origin)}` + "404.png";
+    }
   }
 };
 

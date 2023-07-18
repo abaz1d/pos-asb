@@ -208,11 +208,232 @@
                         <button
                           type="button"
                           @click="addItem()"
-                          class="btn btn-primary w-20 mt-3"
+                          class="btn btn-primary w-20 mb-2"
                           :disabled="total_harga_select == 0"
                         >
                           Tambah
                         </button>
+                        <hr />
+                        <div class="flex gap-2">
+                          <div class="w-1/3 mt-2">
+                            <label
+                              class="block text-sm font-medium text-gray-700"
+                              >Jaminan</label
+                            >
+                            <div
+                              class="mt-1 flex justify-center rounded-md border-2 border-dashed border-gray-300 px-6 pt-5 pb-6"
+                            >
+                              <div class="space-y-1 text-center">
+                                <svg
+                                  @click="this.$refs.gambarJaminan.click()"
+                                  v-if="
+                                    url_jaminan == null || url_jaminan == ''
+                                  "
+                                  class="mx-auto h-12 w-12 text-gray-400 cursor-pointer"
+                                  stroke="currentColor"
+                                  fill="none"
+                                  viewBox="0 0 48 48"
+                                  aria-hidden="true"
+                                >
+                                  <path
+                                    d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                  />
+                                </svg>
+
+                                <div
+                                  v-else
+                                  class="relative image-fit cursor-pointer zoom-in"
+                                  style="height: 5rem"
+                                >
+                                  <img
+                                    class="imgUp rounded-md"
+                                    alt="Amanah Sejahtera Bersama"
+                                    :src="url_jaminan"
+                                    decoding="async"
+                                    loading="lazy"
+                                  />
+                                  <Tippy
+                                    content="Remove this image?"
+                                    @click="url_jaminan = null"
+                                    class="tooltip w-5 h-5 flex items-center justify-center absolute rounded-full text-white bg-danger right-0 top-0 -mr-2 -mt-2"
+                                  >
+                                    <XIcon class="w-4 h-4" />
+                                  </Tippy>
+                                </div>
+                                <div>
+                                  <div class="flex text-sm text-gray-600">
+                                    <label
+                                      for="gambarJaminan"
+                                      class="relative cursor-pointer rounded-md bg-white font-medium text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:text-indigo-500"
+                                    >
+                                      <span>Upload a file</span>
+                                      <input
+                                        id="gambarJaminan"
+                                        ref="gambarJaminan"
+                                        @change="
+                                          (e) => previewImage(e, 'jaminan')
+                                        "
+                                        name="file-upload"
+                                        type="file"
+                                        class="sr-only"
+                                        accept="image/jpeg, image/png"
+                                      />
+                                    </label>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="w-1/3 mt-2">
+                            <label
+                              class="block text-sm font-medium text-gray-700"
+                              >Bukti Penyerahan</label
+                            >
+                            <div
+                              class="mt-1 flex justify-center rounded-md border-2 border-dashed border-gray-300 px-6 pt-5 pb-6"
+                            >
+                              <div class="space-y-1 text-center">
+                                <svg
+                                  @click="this.$refs.gambarPenyerahan.click()"
+                                  v-if="
+                                    url_penyerahan == null ||
+                                    url_penyerahan == ''
+                                  "
+                                  class="mx-auto h-12 w-12 text-gray-400 cursor-pointer"
+                                  stroke="currentColor"
+                                  fill="none"
+                                  viewBox="0 0 48 48"
+                                  aria-hidden="true"
+                                >
+                                  <path
+                                    d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                  />
+                                </svg>
+
+                                <div
+                                  v-else
+                                  class="relative image-fit cursor-pointer zoom-in"
+                                  style="height: 5rem"
+                                >
+                                  <img
+                                    class="imgUp rounded-md"
+                                    alt="Amanah Sejahtera Bersama"
+                                    :src="url_penyerahan"
+                                    decoding="async"
+                                    loading="lazy"
+                                  />
+                                  <Tippy
+                                    content="Remove this image?"
+                                    @click="url_penyerahan = null"
+                                    class="tooltip w-5 h-5 flex items-center justify-center absolute rounded-full text-white bg-danger right-0 top-0 -mr-2 -mt-2"
+                                  >
+                                    <XIcon class="w-4 h-4" />
+                                  </Tippy>
+                                </div>
+                                <div>
+                                  <div class="flex text-sm text-gray-600">
+                                    <label
+                                      for="gambarPenyerahan"
+                                      class="relative cursor-pointer rounded-md bg-white font-medium text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:text-indigo-500"
+                                    >
+                                      <span>Upload a file</span>
+                                      <input
+                                        id="gambarPenyerahan"
+                                        ref="gambarPenyerahan"
+                                        @change="
+                                          (e) => previewImage(e, 'penyerahan')
+                                        "
+                                        name="file-upload"
+                                        type="file"
+                                        class="sr-only"
+                                        accept="image/jpeg, image/png"
+                                      />
+                                    </label>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="w-1/3 mt-2">
+                            <label
+                              class="block text-sm font-medium text-gray-700"
+                              >Bukti Pengembalian</label
+                            >
+                            <div
+                              class="mt-1 flex justify-center rounded-md border-2 border-dashed border-gray-300 px-6 pt-5 pb-6"
+                            >
+                              <div class="space-y-1 text-center">
+                                <svg
+                                  @click="this.$refs.gambarPengembalian.click()"
+                                  v-if="
+                                    url_pengembalian == null ||
+                                    url_pengembalian == ''
+                                  "
+                                  class="mx-auto h-12 w-12 text-gray-400 cursor-pointer"
+                                  stroke="currentColor"
+                                  fill="none"
+                                  viewBox="0 0 48 48"
+                                  aria-hidden="true"
+                                >
+                                  <path
+                                    d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                  />
+                                </svg>
+
+                                <div
+                                  v-else
+                                  class="relative image-fit cursor-pointer zoom-in"
+                                  style="height: 5rem"
+                                >
+                                  <img
+                                    class="imgUp rounded-md"
+                                    alt="Amanah Sejahtera Bersama"
+                                    :src="url_pengembalian"
+                                    decoding="async"
+                                    loading="lazy"
+                                  />
+                                  <Tippy
+                                    content="Remove this image?"
+                                    @click="url_pengembalian = null"
+                                    class="tooltip w-5 h-5 flex items-center justify-center absolute rounded-full text-white bg-danger right-0 top-0 -mr-2 -mt-2"
+                                  >
+                                    <XIcon class="w-4 h-4" />
+                                  </Tippy>
+                                </div>
+                                <div>
+                                  <div class="flex text-sm text-gray-600">
+                                    <label
+                                      for="gambarPengembalian"
+                                      class="relative cursor-pointer rounded-md bg-white font-medium text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:text-indigo-500"
+                                    >
+                                      <span>Upload a file</span>
+                                      <input
+                                        id="gambarPengembalian"
+                                        ref="gambarPengembalian"
+                                        @change="
+                                          (e) => previewImage(e, 'pengembalian')
+                                        "
+                                        name="file-upload"
+                                        type="file"
+                                        class="sr-only"
+                                        accept="image/jpeg, image/png"
+                                      />
+                                    </label>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -357,6 +578,9 @@
                     @update:endDate="(newValue) => (endDate = newValue)"
                     @update:totalBayarGlobal="
                       (newValue) => (total_bayar_global = parseInt(newValue))
+                    "
+                    @update:kembalian="
+                      (newValue) => (kembalian = parseInt(newValue))
                     "
                   />
                 </div>
@@ -655,6 +879,7 @@ import DetailKasir from "./DetailKasir.vue";
 import moment from "moment";
 import html2canvas from "html2canvas";
 
+const publicPath = import.meta.env.VITE_APP_BASE_API;
 const modalErrorRef = ref();
 const Penyewaan = usePenyewaanStore();
 const Auth = useAuthStore();
@@ -692,6 +917,19 @@ const itemDel = ref("");
 const auth = ref();
 const startDate = ref("");
 const endDate = ref("");
+const url_jaminan = ref(null);
+const file_jaminan = ref(null);
+const url_penyerahan = ref(null);
+const file_penyerahan = ref(null);
+const url_pengembalian = ref(null);
+const file_pengembalian = ref(null);
+
+const gambar_lama_jaminan = ref("");
+const gambar_lama_jaminan_preview = ref("");
+const gambar_lama_penyerahan = ref("");
+const gambar_lama_penyerahan_preview = ref("");
+const gambar_lama_pengembalian = ref("");
+const gambar_lama_pengembalian_preview = ref("");
 
 // Basic non sticky notification
 const basicNonStickyNotification = ref();
@@ -708,6 +946,57 @@ const startTransaction = () => {
   Penyewaan.startTransaction().then((data) => {
     no_invoice.value = data.no_invoice;
   });
+};
+const previewImage = (e, params) => {
+  if (params == "jaminan") {
+    file_jaminan.value = e.target.files[0];
+    url_jaminan.value = URL.createObjectURL(file_jaminan.value);
+  } else if (params == "penyerahan") {
+    file_penyerahan.value = e.target.files[0];
+    url_penyerahan.value = URL.createObjectURL(file_penyerahan.value);
+  } else if (params == "pengembalian") {
+    file_pengembalian.value = e.target.files[0];
+    url_pengembalian.value = URL.createObjectURL(file_pengembalian.value);
+  }
+};
+
+const getImgUrl = (gambar, params) => {
+  if (gambar != null) {
+    if (params == "jaminan") {
+      var images = gambar.data.map((b) => String.fromCharCode(b)).join("");
+      gambar_lama_jaminan_preview.value = new URL(
+        `${publicPath}jaminan/${images}`
+      ).href;
+      if (isEdit.value) {
+        url_jaminan.value = gambar_lama_jaminan_preview.value;
+      }
+      return gambar_lama_jaminan_preview.value;
+    } else if (params == "penyerahan") {
+      var images = gambar.data.map((b) => String.fromCharCode(b)).join("");
+      gambar_lama_penyerahan_preview.value = new URL(
+        `${publicPath}penyerahan/${images}`
+      ).href;
+      if (isEdit.value) {
+        url_penyerahan.value = gambar_lama_penyerahan_preview.value;
+      }
+      return gambar_lama_penyerahan_preview.value;
+    } else if (params == "pengembalian") {
+      var images = gambar.data.map((b) => String.fromCharCode(b)).join("");
+      gambar_lama_pengembalian_preview.value = new URL(
+        `${publicPath}pengembalian/${images}`
+      ).href;
+      if (isEdit.value) {
+        url_pengembalian.value = gambar_lama_pengembalian_preview.value;
+      }
+      return gambar_lama_pengembalian_preview.value;
+    }
+  } else {
+    if (isEdit.value) {
+      return "";
+    } else {
+      return `${new URL(window.location.origin)}` + "404.png";
+    }
+  }
 };
 
 const addItem = () => {
@@ -775,6 +1064,13 @@ const simpanPenyewaan = () => {
       total_harga_global_now,
       total_bayar_global_now,
       kembalian_now,
+      status.value,
+      file_jaminan.value,
+      file_penyerahan.value,
+      file_pengembalian.value,
+      gambar_lama_jaminan.value,
+      gambar_lama_penyerahan.value,
+      gambar_lama_pengembalian.value,
       isEdit.value
     )
       .then(() => {
@@ -835,6 +1131,19 @@ const resetModal = () => {
   Penyewaan.rawPenyewaanDetail = [];
   startDate.value = "";
   endDate.value = "";
+  url_jaminan.value = null;
+  file_jaminan.value = null;
+  url_penyerahan.value = null;
+  file_penyerahan.value = null;
+  url_pengembalian.value = null;
+  file_pengembalian.value = null;
+
+  gambar_lama_jaminan.value = "";
+  gambar_lama_jaminan_preview.value = "";
+  gambar_lama_penyerahan.value = "";
+  gambar_lama_penyerahan_preview.value = "";
+  gambar_lama_pengembalian.value = "";
+  gambar_lama_pengembalian_preview.value = "";
 };
 
 watch(item_select, async (e) => {
@@ -1069,7 +1378,7 @@ const initTabulator = () => {
         title: "TANGGAL PENYEWAAN",
         headerHozAlign: "center",
         minWidth: 200,
-        field: "tanggal_penyewaan",
+        field: "periode[0]",
         hozAlign: "center",
         vertAlign: "middle",
         print: false,
@@ -1077,7 +1386,7 @@ const initTabulator = () => {
         formatter(cell) {
           return `<div>
                 <div class="font-medium whitespace-nowrap">${moment(
-                  cell.getData().tanggal_penyewaan
+                  cell.getData().periode[0]
                 ).format("DD MMM YYYY")}</div>
               </div>`;
         },
@@ -1159,6 +1468,16 @@ const initTabulator = () => {
           dom(a).on("click", "a", function (e) {
             if (e.id === "edit") {
               const penyewaan = cell.getData();
+              isEdit.value = true;
+              url_jaminan.value = getImgUrl(penyewaan.jaminan, "jaminan");
+              url_penyerahan.value = getImgUrl(
+                penyewaan.bukti_penyerahan,
+                "penyerahan"
+              );
+              url_pengembalian.value = getImgUrl(
+                penyewaan.bukti_pengembalian,
+                "pengembalian"
+              );
               Penyewaan.readDetailPenyewaan(penyewaan.no_invoice)
                 .then(() => {
                   no_invoice.value = penyewaan.no_invoice;
@@ -1169,7 +1488,13 @@ const initTabulator = () => {
                   total_harga_global.value = parseFloat(penyewaan.total_harga);
                   total_bayar_global.value = parseFloat(penyewaan.total_bayar);
                   kembalian.value = parseFloat(penyewaan.kembalian);
-                  isEdit.value = true;
+                  gambar_lama_jaminan.value = penyewaan.jaminan;
+                  gambar_lama_penyerahan.value = penyewaan.bukti_penyerahan;
+                  gambar_lama_pengembalian.value = penyewaan.bukti_pengembalian;
+                  file_jaminan.value = "";
+                  file_penyerahan.value = "";
+                  file_pengembalian.value = "";
+                  //isEdit.value = true;
                   modal_utama.value = true;
                 })
                 .catch((e) => {
