@@ -16,6 +16,7 @@ import BarangMasuk from "@/views/BarangMasuk/Main.vue";
 import Penjualan from "@/views/Penjualan/Main.vue";
 import Penyewaan from "@/views/Penyewaan/Main.vue";
 import Pembelian from "@/views/Pembelian/Main.vue";
+import Penitipan from "@/views/Penitipan/Main.vue";
 import Retur from "@/views/Retur/Main.vue";
 import StokLokal from "@/views/StokLokal/Main.vue";
 import LaporanPenjualan from "@/views/Laporan/LaporanPenjualan.vue";
@@ -101,6 +102,12 @@ const routes = [
         name: "top-menu-pembelian",
         component: Pembelian,
         meta: { authorize: ["Super Admin"] },
+      },
+      {
+        path: "penitipan",
+        name: "top-menu-penitipan",
+        component: Penitipan,
+        meta: { authorize: [] },
       },
       {
         path: "laporan-penjualan",
@@ -214,6 +221,12 @@ const routes = [
         path: "pembelian",
         name: "side-menu-pembelian",
         component: Pembelian,
+        meta: { authorize: ["Super Admin"] },
+      },
+      {
+        path: "penitipan",
+        name: "side-menu-penitipan",
+        component: Penitipan,
         meta: { authorize: [] },
       },
       {
@@ -328,6 +341,12 @@ const routes = [
         path: "pembelian",
         name: "simple-menu-pembelian",
         component: Pembelian,
+        meta: { authorize: ["Super Admin"] },
+      },
+      {
+        path: "penitipan",
+        name: "simple-menu-penitipan",
+        component: Penitipan,
         meta: { authorize: [] },
       },
       {

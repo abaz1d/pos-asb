@@ -49,6 +49,11 @@ export const useSimpleMenuStore = defineStore("simpleMenu", {
             pageName: "simple-menu-penyewaan",
             title: "Penyewaan",
           },
+          {
+            icon: "ArrowBigDownIcon",
+            pageName: "simple-menu-penitipan",
+            title: "Penitipan",
+          },
         ],
       },
       {

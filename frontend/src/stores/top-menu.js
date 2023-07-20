@@ -49,6 +49,11 @@ export const useTopMenuStore = defineStore("topMenu", {
             pageName: "top-menu-penyewaan",
             title: "Penyewaan",
           },
+          {
+            icon: "ArrowBigDownIcon",
+            pageName: "top-menu-penitipan",
+            title: "Penitipan",
+          },
         ],
       },
       {
