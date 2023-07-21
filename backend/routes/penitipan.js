@@ -14,12 +14,10 @@ module.exports = function (db) {
         "SELECT dp.*, v.nama_varian FROM penitipan_detail as dp LEFT JOIN varian as v ON dp.id_varian = v.id_varian WHERE dp.no_invoice = $1 ORDER BY dp.id_detail_titip",
         [noInvoice]
       );
-      const varian = await db.query(
-        "SELECT var.*, b.id_barang, b.nama_barang FROM varian as var LEFT JOIN barang as b ON var.id_barang = b.id_barang ORDER BY var.id_barang"
+      const barang = await db.query(
+        "SELECT * FROM barang ORDER BY CAST(REGEXP_REPLACE(id_barang, '[^0-9]', '', 'g') AS INTEGER) ASC"
       );
-      const supplier = await db.query(
-        "SELECT * FROM supplier ORDER BY id_supplier"
-      );
+      const satuan = await db.query("SELECT * FROM satuan ORDER BY id_satuan");
       const print = await db.query(
         "SELECT dp.*,pe.*,v.nama_varian FROM penitipan_detail as dp LEFT JOIN varian as v ON dp.id_varian = v.id_varian LEFT JOIN penitipan as pe ON dp.no_invoice = pe.no_invoice WHERE dp.no_invoice = $1",
         [noInvoice]
@@ -28,9 +26,9 @@ module.exports = function (db) {
       res.json(
         new Response({
           penitipan: rows,
-          supplier: supplier.rows,
+          satuan: satuan.rows,
           details: details.rows,
-          varian: varian.rows,
+          barang: barang.rows,
           print,
         })
       );

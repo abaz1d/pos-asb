@@ -44,15 +44,23 @@
               <div
                 class="bg-slate-200 rounded-md p-2 font-medium lg:text-base text-sm px-2"
               >
-                <p class="text-right text-black">
-                  {{ moment(waktu).format("DD MMM YYYY HH:SS") }}
+                <p class="text-center text-black">
+                  {{ status ? "Selesai" : "Aktif" }}
                 </p>
               </div>
               <p
-                class="text-center bg-primary text-white rounded-md w-24 mx-auto lg:-mt-[52px] -mt-12 lg:mb-8 mb-6"
+                class="text-center bg-primary text-white rounded-md w-14 mx-auto lg:-mt-[52px] -mt-12 lg:mb-8 mb-6"
               >
-                WAKTU
+                STATUS
               </p>
+            </div>
+            <div
+              @click="resetModal()"
+              class="sm:w-auto flex ml-2 -mt-2 items-right cursor-pointer"
+            >
+              <div class="m-auto text-slate-100 bg-danger rounded">
+                <XIcon class="w-8 h-8 mx-auto" />
+              </div>
             </div>
           </div>
         </ModalHeader>
@@ -65,33 +73,10 @@
                   <div class="p-2">
                     <div class="flex xl:flex-row flex-col">
                       <div class="flex-1 mt-0">
-                        <div class="grid grid-cols-12 gap-x-2 sm:gap-x-3">
-                          <div class="col-span-12 mb-5">
-                            <label for="pos-form-1" class="form-label"
-                              >ID Supplier
-                            </label>
-                            <div class="flex w-full">
-                              <TomSelect
-                                v-model="supplier"
-                                class="w-full"
-                                required
-                              >
-                                <option value="kosong" disabled>
-                                  --&gt; Pilih Items &lt;--
-                                </option>
-                                <option
-                                  v-for="supplier in Penitipan.suppliers"
-                                  :key="supplier.id_supplier"
-                                  :supplier="supplier"
-                                  :value="supplier.id_supplier"
-                                >
-                                  {{ supplier.id_supplier }} -
-                                  {{ supplier.nama_supplier }}
-                                </option>
-                              </TomSelect>
-                            </div>
-                          </div>
-                          <div class="sm:col-span-9 col-span-12 mb-5">
+                        <div
+                          class="grid grid-cols-12 gap-x-2 sm:gap-x-3 overflow-visible"
+                        >
+                          <div class="col-span-6 mb-5">
                             <label for="pos-form-1" class="form-label"
                               >ID Barang/Item
                               <p class="sm:hidden form-label">& Stok</p>
@@ -115,25 +100,36 @@
                                   --&gt; Pilih Items &lt;--
                                 </option>
                                 <option
-                                  v-for="varian in Penitipan.varians"
-                                  :key="varian.id_varian"
-                                  :varian="varian"
-                                  :value="varian.id_varian"
+                                  v-for="barang in Penitipan.barangs"
+                                  :key="barang.id_barang"
+                                  :barang="barang"
+                                  :value="barang.id_barang"
                                 >
-                                  {{ varian.id_barang }} -
-                                  {{ varian.nama_barang }} |
-                                  {{ varian.id_varian }} -
-                                  {{ varian.nama_varian }}
+                                  {{ barang.id_barang }} -
+                                  {{ barang.nama_barang }}
                                 </option>
                               </TomSelect>
                             </div>
                             <div class="form-help">
-                              * Pilih atau Klik Kamera untuk scan barcode.
+                              * Klik Kamera untuk scan barcode.
                             </div>
                           </div>
-                          <div class="hidden sm:block col-span-3 mb-5">
+                          <div class="col-span-6 mb-5">
                             <label for="pos-form-1" class="form-label"
-                              >Stok Tersisa</label
+                              >Nama Varian</label
+                            >
+                            <input
+                              id="pos-form-1"
+                              type="text"
+                              class="form-control flex-1"
+                              placeholder="Tulis Nama Varian"
+                              required
+                              v-model="nama_varian_select"
+                            />
+                          </div>
+                          <div class="col-span-6 mb-5">
+                            <label for="pos-form-1" class="form-label"
+                              >Harga Penitip</label
                             >
                             <input
                               v-model="stok"
@@ -141,60 +137,12 @@
                               type="text"
                               class="form-control flex-1"
                               placeholder="Masukan Stok Tersisa"
-                              readonly
                             />
                           </div>
 
-                          <div class="hidden sm:block col-span-6 mb-5">
+                          <div class="col-span-6 mb-5">
                             <label for="pos-form-1" class="form-label"
-                              >Nama Barang</label
-                            >
-                            <div
-                              class="bg-slate-100 py-2 px-3 border-2 rounded-md"
-                            >
-                              <p class="text-black">{{ nama_barang_select }}</p>
-                            </div>
-                          </div>
-                          <div class="hidden sm:block col-span-6 mb-5">
-                            <label for="pos-form-1" class="form-label"
-                              >Nama Varian</label
-                            >
-                            <div
-                              class="bg-slate-100 py-2 px-3 border-2 rounded-md"
-                            >
-                              <p class="text-black">{{ nama_varian_select }}</p>
-                            </div>
-                          </div>
-
-                          <div class="sm:hidden col-span-12 mb-5">
-                            <label for="pos-form-1" class="form-label"
-                              >Nama Barang & Varian</label
-                            >
-                            <div
-                              class="bg-slate-100 py-2 px-3 border-2 rounded-md"
-                            >
-                              <p class="text-black">{{ nama_campur_select }}</p>
-                            </div>
-                          </div>
-
-                          <div class="col-span-5 sm:col-span-4 mb-5">
-                            <label for="pos-form-1" class="form-label"
-                              >Harga Item</label
-                            >
-                            <div
-                              class="bg-slate-100 py-2 px-3 border-2 rounded-md"
-                            >
-                              <p class="text-black">
-                                {{
-                                  currencyFormatter.format(harga_item_select)
-                                }}
-                              </p>
-                            </div>
-                          </div>
-                          <XIcon class="sm:hidden m-auto col-span-2" />
-                          <div class="col-span-5 sm:col-span-4 mb-5">
-                            <label for="pos-form-1" class="form-label"
-                              >Qty</label
+                              >Harga Jual</label
                             >
                             <input
                               id="pos-form-1"
@@ -203,22 +151,45 @@
                               placeholder="Masukan Qty"
                               required
                               v-model="qty_select"
-                              :disabled="total_harga_select == 0"
                             />
                           </div>
-                          <div class="col-span-12 sm:col-span-4 mb-5">
+                          <div class="col-span-6 mb-5">
                             <label for="pos-form-1" class="form-label"
-                              >Total Harga</label
-                            >
-                            <div
-                              class="bg-slate-100 py-2 px-3 border-2 rounded-md"
-                            >
-                              <p class="text-black">
-                                {{
-                                  currencyFormatter.format(total_harga_select)
-                                }}
-                              </p>
+                              >ID Satuan
+                            </label>
+                            <div class="flex w-full">
+                              <TomSelect
+                                v-model="satuan"
+                                class="w-full"
+                                required
+                              >
+                                <option value="kosong" disabled>
+                                  --&gt; Pilih Items &lt;--
+                                </option>
+                                <option
+                                  v-for="satuan in Penitipan.satuans"
+                                  :key="satuan.id_satuan"
+                                  :satuan="satuan"
+                                  :value="satuan.id_satuan"
+                                >
+                                  {{ satuan.id_satuan }} -
+                                  {{ satuan.nama_satuan }}
+                                </option>
+                              </TomSelect>
                             </div>
+                          </div>
+                          <div class="col-span-6 mb-5">
+                            <label for="pos-form-1" class="form-label"
+                              >Qty/ Stok</label
+                            >
+                            <input
+                              id="pos-form-1"
+                              type="text"
+                              class="form-control flex-1"
+                              placeholder="Masukan Qty"
+                              required
+                              v-model="stok"
+                            />
                           </div>
                         </div>
                         <button
@@ -777,6 +748,7 @@ var subTable;
 const isInvoice = ref(false);
 const no_invoice = ref("-");
 const waktu = ref("");
+const status = ref(false);
 const item_select = ref("kosong");
 const stok = ref(0);
 const nama_barang_select = ref("-");
@@ -788,7 +760,7 @@ const total_harga_select = ref(0);
 const total_harga_global = ref(0);
 const total_bayar_global = ref(0);
 const kembalian = ref(0);
-const supplier = ref("kosong");
+const satuan = ref("kosong");
 const itemDel = ref("");
 
 // Basic non sticky notification
@@ -877,7 +849,7 @@ const simpanPenitipan = () => {
       total_harga_global_now,
       total_bayar_global_now,
       kembalian_now,
-      supplier.value,
+      satuan.value,
       isEdit.value
     )
       .then(() => {
@@ -923,7 +895,8 @@ const resetModal = () => {
   isInvoice.value = false;
   no_invoice.value = "-";
   waktu.value = "";
-  supplier.value = "kosong";
+  status.value = false;
+  satuan.value = "kosong";
   item_select.value = "kosong";
   stok.value = 0;
   nama_barang_select.value = "-";
@@ -1187,10 +1160,10 @@ const initTabulator = () => {
                     penitipan.total_bayar_titip
                   );
                   kembalian.value = parseFloat(penitipan.kembalian_titip);
-                  supplier.value =
-                    penitipan.id_supplier == null
+                  satuan.value =
+                    penitipan.id_satuan == null
                       ? "kosong"
-                      : penitipan.id_supplier;
+                      : penitipan.id_satuan;
                   isEdit.value = true;
                   modal_utama.value = true;
                 })

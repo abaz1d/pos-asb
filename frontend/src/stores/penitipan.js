@@ -4,8 +4,8 @@ import { request } from "../utils/api";
 export const usePenitipanStore = defineStore({
   id: "penitipan",
   state: () => ({
-    rawVarians: [],
-    rawSuppliers: [],
+    rawBarangs: [],
+    rawSatuans: [],
     rawPenitipans: [],
     rawDetails: [],
     rawPrints: [],
@@ -13,8 +13,8 @@ export const usePenitipanStore = defineStore({
     rawPenitipanDetail: [],
   }),
   getters: {
-    varians: (state) => state.rawVarians,
-    suppliers: (state) => state.rawSuppliers,
+    barangs: (state) => state.rawBarangs,
+    satuans: (state) => state.rawSatuans,
     penitipans: (state) => state.rawPenitipans,
     details: (state) => state.rawDetails,
     prints: (state) => state.rawPrints,
@@ -37,8 +37,9 @@ export const usePenitipanStore = defineStore({
       try {
         const { data } = await request.get("penitipan");
         if (data.success) {
-          this.rawVarians = data.data.varian;
-          this.rawSuppliers = data.data.supplier;
+          console.log(data);
+          this.rawBarangs = data.data.barang;
+          this.rawSatuans = data.data.satuan;
           this.rawPenitipans = data.data.penitipan;
           this.rawDetails = data.data.details;
           return this.rawPenitipans;
