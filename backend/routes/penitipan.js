@@ -56,6 +56,7 @@ module.exports = function (db) {
       );
       res.json(new Response(rows[0], true));
     } catch (e) {
+      console.error(e);
       res.status(500).json(new Response(e.toString(), false));
     }
   });
