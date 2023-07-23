@@ -45,6 +45,7 @@ module.exports = function (db) {
       );
       res.json(new Response(rows, true));
     } catch (e) {
+      console.error(e);
       res.status(500).json(new Response(e.toString(), false));
     }
   });
