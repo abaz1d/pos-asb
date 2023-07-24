@@ -37,7 +37,7 @@ export const usePenitipanStore = defineStore({
       try {
         const { data } = await request.get("penitipan");
         if (data.success) {
-          console.log(data);
+          console.log("suc", data.data.satuan);
           this.rawBarangs = data.data.barang;
           this.rawSatuans = data.data.satuan;
           this.rawPenitipans = data.data.penitipan;

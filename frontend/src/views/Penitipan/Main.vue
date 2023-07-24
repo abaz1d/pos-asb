@@ -155,12 +155,25 @@
                           </div>
                           <div class="col-span-6 mb-5">
                             <label for="pos-form-1" class="form-label"
+                              >Qty/ Stok</label
+                            >
+                            <input
+                              id="pos-form-1"
+                              type="text"
+                              class="form-control flex-1"
+                              placeholder="Masukan Qty"
+                              required
+                              v-model="stok"
+                            />
+                          </div>
+                          <div class="col-span-6 mb-5">
+                            <label for="pos-form-1" class="form-label"
                               >ID Satuan
                             </label>
                             <div class="flex w-full">
-                              <TomSelect
+                              <select
                                 v-model="satuan"
-                                class="w-full"
+                                class="w-full rounded-md text-sm"
                                 required
                               >
                                 <option value="kosong" disabled>
@@ -175,21 +188,8 @@
                                   {{ satuan.id_satuan }} -
                                   {{ satuan.nama_satuan }}
                                 </option>
-                              </TomSelect>
+                              </select>
                             </div>
-                          </div>
-                          <div class="col-span-6 mb-5">
-                            <label for="pos-form-1" class="form-label"
-                              >Qty/ Stok</label
-                            >
-                            <input
-                              id="pos-form-1"
-                              type="text"
-                              class="form-control flex-1"
-                              placeholder="Masukan Qty"
-                              required
-                              v-model="stok"
-                            />
                           </div>
                         </div>
                         <button
@@ -208,64 +208,20 @@
               </div>
 
               <!-- BEGIN: Display Total Harga -->
-              <div class="lg:block hidden mt-2 col-span-4 z-50">
-                <div class="intro-y box">
-                  <div class="box flex p-2">
-                    <input
-                      type="text"
-                      class="form-control py-3 px-4 w-full bg-slate-100 border-slate-200/60 pr-10"
-                      placeholder="Use coupon code..."
-                    />
-                    <button class="btn btn-primary ml-2">Apply</button>
-                  </div>
-                  <div class="box p-2 mt-2">
-                    <div class="flex">
-                      <div class="mr-auto font-medium text-base">
-                        Total Harga
-                      </div>
-                    </div>
-                    <div class="bg-slate-200 rounded-md p-2">
-                      <div class="font-medium text-xl">
-                        <p class="text-right text-black">
-                          {{ currencyFormatter.format(total_harga_global) }}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div
-                      class="flex mt-4 pt-4 border-t border-slate-200/60 dark:border-darkmode-400"
-                    >
-                      <div class="mr-auto font-medium text-base">
-                        Total Bayar
-                      </div>
-                    </div>
-                    <div
-                      class="input-group bg-slate-200 rounded-md border-2 border-slate-200/60 mr-0"
-                    >
-                      <div class="input-group-text my-auto text-xl">
-                        <p class="text-black">Rp.</p>
-                      </div>
-                      <input
-                        v-model="total_bayar_global"
-                        type="number"
-                        class="form-control flex-1 font-medium text-xl text-right"
-                        placeholder="Nominal Uang"
-                        required
-                      />
-                    </div>
-
-                    <div class="flex mt-1 pt-4">
-                      <div class="mr-auto font-medium text-base">Kembalian</div>
-                    </div>
-                    <div class="bg-slate-200 rounded-md p-2">
-                      <div class="font-medium text-xl">
-                        <p class="text-right text-black">
-                          {{ currencyFormatter.format(kembalian) }}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              <div class="lg:block hidden mt-2 col-span-4">
+                <DetailKasir
+                  :startDate="startDate"
+                  :endDate="endDate"
+                  :totalHargaGlobal="total_harga_global"
+                  :totalBayarGlobal="total_bayar_global"
+                  :kembalian="kembalian"
+                  :periode="periode"
+                  @update:startDate="(newValue) => (startDate = newValue)"
+                  @update:endDate="(newValue) => (endDate = newValue)"
+                  @update:totalBayarGlobal="
+                    (newValue) => (total_bayar_global = parseInt(newValue))
+                  "
+                />
               </div>
               <!-- END: Display Total Harga -->
 
@@ -725,6 +681,7 @@ import dom from "@left4code/tw-starter/dist/js/dom";
 import qrcode from "@/components/qrcode/QrCode.vue";
 import { currencyFormatter } from "@/utils/helper";
 import PrintInvoice from "./PrintInvoice.vue";
+import DetailKasir from "./DetailKasir.vue";
 import moment from "moment";
 import html2canvas from "html2canvas";
 
@@ -762,6 +719,10 @@ const total_bayar_global = ref(0);
 const kembalian = ref(0);
 const satuan = ref("kosong");
 const itemDel = ref("");
+
+const startDate = ref("");
+const endDate = ref("");
+const periode = ref([]);
 
 // Basic non sticky notification
 const basicNonStickyNotification = ref();
@@ -910,6 +871,9 @@ const resetModal = () => {
   kembalian.value = 0;
   itemDel.value = "";
   Penitipan.rawPenitipanDetail = [];
+  periode.value = [];
+  startDate.value = "";
+  endDate.value = "";
 };
 
 watch(item_select, async (e) => {
