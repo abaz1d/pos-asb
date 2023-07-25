@@ -202,6 +202,7 @@ module.exports = function (db) {
         }
       );
     } catch (err) {
+      console.error(err);
       if (err) return res.status(500).json(new Response(err, false));
     }
   });

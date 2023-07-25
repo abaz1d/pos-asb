@@ -75,9 +75,23 @@ module.exports = function (db) {
   });
   router.post("/additem", async function (req, res, next) {
     try {
+      let barang = await db.query(
+        "INSERT INTO varian(nama_varian, id_barang, stok_global, harga_beli_varian, id_satuan, id_gudang, kategori, harga_jual_varian) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id_varian",
+        [
+          req.body.nama_varian,
+          req.body.id_barang,
+          req.body.stok,
+          req.body.harga_titip,
+          req.body.satuan,
+          "GD-0011",
+          false,
+          req.body.harga_jual,
+        ]
+      );
+      console.log(barang.rows[0].id_varian);
       detail = await db.query(
         "INSERT INTO penitipan_detail(no_invoice, id_varian, qty)VALUES ($1, $2, $3) returning *",
-        [req.body.no_invoice, req.body.id_varian, req.body.qty]
+        [req.body.no_invoice, barang.rows[0].id_varian, req.body.stok]
       );
       const { rows } = await db.query(
         "SELECT * FROM penitipan WHERE no_invoice = $1",
@@ -125,7 +139,7 @@ module.exports = function (db) {
     }
   );
 
-  router.get(
+  router.delete(
     "/delete/:no_invoice",
     isLoggedIn,
     async function (req, res, next) {
@@ -170,15 +184,37 @@ module.exports = function (db) {
     }
   );
 
+  router.put(
+    "/updperiode/:no_invoice",
+    isLoggedIn,
+    async function (req, res, next) {
+      try {
+        const tanggal_diambil = req.body.tanggal_diambil;
+        const id = req.params.no_invoice;
+        const { rows } = await db.query(
+          "UPDATE penitipan SET tanggal_diambil = $1 WHERE no_invoice = $2 RETURNING total_harga",
+          [tanggal_diambil, id]
+        );
+        res.json(new Response(rows));
+      } catch (e) {
+        console.error(e);
+        res.status(500).json(new Response(e, false));
+      }
+    }
+  );
+
   router.delete(
     "/delitem/:id_detail_titip",
     isLoggedIn,
     async function (req, res, next) {
       try {
-        delDetail = await db.query(
-          "DELETE FROM penitipan_detail WHERE id_detail_titip = $1",
+        let delDetail = await db.query(
+          "DELETE FROM penitipan_detail WHERE id_detail_titip = $1 returning *",
           [req.params.id_detail_titip]
         );
+        varian = await db.query("DELETE FROM varian WHERE id_varian = $1", [
+          delDetail.rows[0].id_varian,
+        ]);
         const { rows } = await db.query(
           "SELECT SUM(total_harga_detail_titip)  AS total FROM penitipan_detail WHERE no_invoice = $1",
           [req.body.no_invoice]

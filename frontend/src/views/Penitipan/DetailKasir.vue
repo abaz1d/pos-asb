@@ -6,6 +6,7 @@
         ref="startDateInput"
         id="startDateInput"
         type="date"
+        readonly
         v-model="startDate"
         class="form-control mr-1 px-1"
         placeholder="Mulai"
@@ -48,38 +49,6 @@
           </p>
         </div>
       </div>
-
-      <div
-        class="flex mt-4 pt-4 border-t border-slate-200/60 dark:border-darkmode-400"
-      >
-        <div class="mr-auto font-medium text-base">Total Bayar</div>
-      </div>
-      <div
-        class="input-group bg-slate-200 rounded-md border-2 border-slate-200/60 mr-0"
-      >
-        <div class="input-group-text my-auto text-xl">
-          <p class="text-black">Rp.</p>
-        </div>
-        <input
-          v-model="totalBayarGlobal"
-          type="number"
-          class="form-control flex-1 font-medium text-xl text-right"
-          placeholder="Nominal Uang"
-          required
-          @input="updateTotalBayar"
-        />
-      </div>
-
-      <div class="flex mt-1 pt-4">
-        <div class="mr-auto font-medium text-base">Kembalian</div>
-      </div>
-      <div class="bg-slate-200 rounded-md p-2">
-        <div class="font-medium text-xl">
-          <p class="text-right text-black">
-            {{ currencyFormatter.format(kembalian) }}
-          </p>
-        </div>
-      </div>
     </div>
   </div>
 </template>
@@ -90,12 +59,7 @@ import { currencyFormatter } from "@/utils/helper";
 import moment from "moment";
 
 export default {
-  emits: [
-    "update:startDate",
-    "update:endDate",
-    "update:totalBayarGlobal",
-    "update:kembalian",
-  ],
+  emits: ["update:startDate", "update:endDate"],
   props: {
     startDate: {
       type: String,
@@ -110,14 +74,6 @@ export default {
       required: true,
     },
     totalHargaGlobal: {
-      type: Number,
-      required: true,
-    },
-    totalBayarGlobal: {
-      type: Number,
-      required: true,
-    },
-    kembalian: {
       type: Number,
       required: true,
     },

@@ -72,7 +72,7 @@
                 <div class="intro-y box">
                   <div class="p-2">
                     <div class="flex xl:flex-row flex-col">
-                      <div class="flex-1 mt-0">
+                      <form @submit.prevent="addItem()" class="flex-1 mt-0">
                         <div
                           class="grid grid-cols-12 gap-x-2 sm:gap-x-3 overflow-visible"
                         >
@@ -92,7 +92,7 @@
                                 <CameraIcon class="w-4 h-4" />
                               </div>
                               <TomSelect
-                                v-model="item_select"
+                                v-model="id_barang"
                                 class="w-full"
                                 required
                               >
@@ -124,19 +124,20 @@
                               class="form-control flex-1"
                               placeholder="Tulis Nama Varian"
                               required
-                              v-model="nama_varian_select"
+                              v-model="nama_varian"
                             />
                           </div>
                           <div class="col-span-6 mb-5">
                             <label for="pos-form-1" class="form-label"
-                              >Harga Penitip</label
+                              >Harga Titip</label
                             >
                             <input
-                              v-model="stok"
+                              v-model="harga_titip"
+                              required
                               id="pos-form-1"
-                              type="text"
+                              type="number"
                               class="form-control flex-1"
-                              placeholder="Masukan Stok Tersisa"
+                              placeholder="Harga dari penitip"
                             />
                           </div>
 
@@ -146,11 +147,11 @@
                             >
                             <input
                               id="pos-form-1"
-                              type="text"
+                              type="number"
                               class="form-control flex-1"
-                              placeholder="Masukan Qty"
+                              placeholder="Harga Jual"
                               required
-                              v-model="qty_select"
+                              v-model="harga_jual"
                             />
                           </div>
                           <div class="col-span-6 mb-5">
@@ -159,7 +160,7 @@
                             >
                             <input
                               id="pos-form-1"
-                              type="text"
+                              type="number"
                               class="form-control flex-1"
                               placeholder="Masukan Qty"
                               required
@@ -192,15 +193,10 @@
                             </div>
                           </div>
                         </div>
-                        <button
-                          type="button"
-                          @click="addItem()"
-                          class="btn btn-primary w-20 mt-3"
-                          :disabled="total_harga_select == 0"
-                        >
+                        <button type="submit" class="btn btn-primary w-20 mt-3">
                           Tambah
                         </button>
-                      </div>
+                      </form>
                     </div>
                   </div>
                 </div>
@@ -213,14 +209,9 @@
                   :startDate="startDate"
                   :endDate="endDate"
                   :totalHargaGlobal="total_harga_global"
-                  :totalBayarGlobal="total_bayar_global"
-                  :kembalian="kembalian"
                   :periode="periode"
                   @update:startDate="(newValue) => (startDate = newValue)"
                   @update:endDate="(newValue) => (endDate = newValue)"
-                  @update:totalBayarGlobal="
-                    (newValue) => (total_bayar_global = parseInt(newValue))
-                  "
                 />
               </div>
               <!-- END: Display Total Harga -->
@@ -271,7 +262,6 @@
                             :key="detail.id_barang"
                             :detail="detail"
                             @openModalRemove="openModalRemove"
-                            @updateTotalHargaTitip="updateTotalHargaTitip"
                           />
                         </tbody>
                       </table>
@@ -302,26 +292,10 @@
                   <div class="col-span-4 text-sm border-x-2 border-t-2">
                     <p class="text-center">Total Harga</p>
                   </div>
-                  <div class="col-span-4 text-sm border-x-2 border-t-2">
-                    <p class="text-center">Total Bayar</p>
-                  </div>
-                  <div class="col-span-4 text-sm border-x-2 border-t-2">
-                    <p class="text-center">Kembalian</p>
-                  </div>
 
                   <div class="col-span-4 text-sm border-2">
                     <p class="text-right mr-1">
                       {{ currencyFormatter.format(total_harga_global) }}
-                    </p>
-                  </div>
-                  <div class="col-span-4 text-sm border-2">
-                    <p class="text-right mr-1">
-                      {{ currencyFormatter.format(total_bayar_global) }}
-                    </p>
-                  </div>
-                  <div class="col-span-4 text-sm border-2">
-                    <p class="text-right mr-1">
-                      {{ currencyFormatter.format(kembalian) }}
                     </p>
                   </div>
                 </div>
@@ -353,41 +327,6 @@
                           </p>
                         </div>
                       </div>
-
-                      <div
-                        class="flex mt-4 pt-4 border-t border-slate-200/60 dark:border-darkmode-400"
-                      >
-                        <div class="mr-auto font-medium text-base">
-                          Total Bayar
-                        </div>
-                      </div>
-                      <div
-                        class="input-group bg-slate-200 rounded-md border-2 border-slate-200/60 mr-0"
-                      >
-                        <div class="input-group-text my-auto text-xl">
-                          <p class="text-black">Rp.</p>
-                        </div>
-                        <input
-                          v-model="total_bayar_global"
-                          type="number"
-                          class="form-control flex-1 font-medium text-xl text-right"
-                          placeholder="Nominal Uang"
-                          required
-                        />
-                      </div>
-
-                      <div class="flex mt-1 pt-4">
-                        <div class="mr-auto font-medium text-base">
-                          Kembalian
-                        </div>
-                      </div>
-                      <div class="bg-slate-200 rounded-md p-2">
-                        <div class="font-medium text-xl">
-                          <p class="text-right text-black">
-                            {{ currencyFormatter.format(kembalian) }}
-                          </p>
-                        </div>
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -408,9 +347,6 @@
             type="button"
             @click="simpanPenitipan()"
             class="object-left btn btn-primary w-32"
-            :disabled="
-              total_bayar_global == 0 || total_bayar_global < total_harga_global
-            "
           >
             Simpan
           </button>
@@ -656,10 +592,7 @@
         <PrintInvoice
           :prints="Penitipan.prints"
           :no_invoice="no_invoice"
-          :waktu="waktu"
           :total_harga_global="total_harga_global"
-          :total_bayar_global="total_bayar_global"
-          :kembalian="kembalian"
         />
       </div>
     </ModalBody>
@@ -704,22 +637,16 @@ const filter = reactive({
 var subTable;
 const isInvoice = ref(false);
 const no_invoice = ref("-");
-const waktu = ref("");
 const status = ref(false);
-const item_select = ref("kosong");
-const stok = ref(0);
-const nama_barang_select = ref("-");
-const nama_varian_select = ref("-");
-const nama_campur_select = ref("-");
-const qty_select = ref(0);
-const harga_item_select = ref(0);
-const total_harga_select = ref(0);
+const id_barang = ref("kosong");
+const stok = ref(null);
+const nama_varian = ref("");
 const total_harga_global = ref(0);
-const total_bayar_global = ref(0);
-const kembalian = ref(0);
 const satuan = ref("kosong");
 const itemDel = ref("");
 
+const harga_titip = ref(null);
+const harga_jual = ref(null);
 const startDate = ref("");
 const endDate = ref("");
 const periode = ref([]);
@@ -753,28 +680,35 @@ const onPrintInvoice = () => {
 const startTransaction = () => {
   Penitipan.startTransaction().then((data) => {
     no_invoice.value = data.no_invoice;
-    waktu.value = data.tanggal_penitipan;
+    startDate.value = data.tanggal_penitipan;
   });
 };
 
-const updateTotalHargaTitip = (total) => {
-  total_harga_global.value = +total;
-};
-
 const addItem = () => {
-  Penitipan.addDetailPenitipan(
-    no_invoice.value,
-    item_select.value,
-    qty_select.value
-  )
-    .then((data) => {
-      total_harga_global.value = +data.total_harga;
-      stok.value = +stok.value - +qty_select.value;
-      nama_campur_select.value = `${nama_barang_select.value} - ${nama_varian_select.value} | ${stok.value}`;
-    })
-    .catch((e) => {
-      alert("addItem" + e);
-    });
+  if (id_barang.value !== "kosong" && satuan.value !== "kosong") {
+    Penitipan.addDetailPenitipan(
+      no_invoice.value,
+      id_barang.value,
+      nama_varian.value,
+      harga_titip.value,
+      harga_jual.value,
+      stok.value,
+      satuan.value
+    )
+      .then((data) => {
+        id_barang.value = "kosong";
+        nama_varian.value = null;
+        harga_titip.value = null;
+        harga_jual.value = null;
+        stok.value = null;
+        satuan.value = "kosong";
+      })
+      .catch((e) => {
+        alert("addItem" + e);
+      });
+  } else {
+    alert("id_barang & id_satuan tidak boleh kosong");
+  }
 };
 
 const openModalRemove = (item) => {
@@ -785,10 +719,7 @@ const openModalRemove = (item) => {
 const removeItem = (id_detail_titip, no_invoice) => {
   Penitipan.removeItem(id_detail_titip, no_invoice)
     .then((data) => {
-      stok.value = stok.value + parseInt(itemDel.value.qty);
-      nama_campur_select.value = `${nama_barang_select.value} - ${nama_varian_select.value} | ${stok.value}`;
       deleteConfirmationModal.value = false;
-      total_harga_global.value = parseFloat(data);
     })
     .catch((e) => {
       alert("removeItem" + e);
@@ -796,21 +727,13 @@ const removeItem = (id_detail_titip, no_invoice) => {
 };
 
 const simpanPenitipan = () => {
-  const no_invoice_now = no_invoice.value;
-  const total_harga_global_now = total_harga_global.value;
-  const total_bayar_global_now = total_bayar_global.value;
-  const kembalian_now = kembalian.value;
-  if (
-    Penitipan.penitipanDetail.length !== 0 &&
-    total_bayar_global.value >= total_harga_global.value
-  ) {
+  if (Penitipan.penitipanDetail.length !== 0) {
     Penitipan.addPenitipan(
-      no_invoice_now,
-      waktu.value,
-      total_harga_global_now,
-      total_bayar_global_now,
-      kembalian_now,
-      satuan.value,
+      no_invoice.value,
+      startDate.value,
+      endDate.value,
+      status.value,
+      total_harga_global.value,
       isEdit.value
     )
       .then(() => {
@@ -843,7 +766,7 @@ const closeQrScanner = () => {
 
 const resultScan = (result) => {
   // ntar di concat ma it outlet
-  item_select.value = result;
+  id_barang.value = result;
   isModalScanner.value = false;
   qrScanner.value.closeQrScanner();
 };
@@ -855,99 +778,42 @@ const resetModal = () => {
   isModalScanner.value = false;
   isInvoice.value = false;
   no_invoice.value = "-";
-  waktu.value = "";
   status.value = false;
   satuan.value = "kosong";
-  item_select.value = "kosong";
-  stok.value = 0;
-  nama_barang_select.value = "-";
-  nama_varian_select.value = "-";
-  nama_campur_select.value = "-";
-  qty_select.value = 0;
-  harga_item_select.value = 0;
-  total_harga_select.value = 0;
+  id_barang.value = "kosong";
+  stok.value = null;
+  nama_varian.value = "";
   total_harga_global.value = 0;
-  total_bayar_global.value = 0;
-  kembalian.value = 0;
   itemDel.value = "";
   Penitipan.rawPenitipanDetail = [];
   periode.value = [];
   startDate.value = "";
   endDate.value = "";
+  harga_titip.value = null;
+  harga_jual.value = null;
 };
-
-watch(item_select, async (e) => {
-  try {
-    if (e !== "kosong") {
-      Penitipan.readDetailItem(e)
-        .then((data) => {
-          (nama_barang_select.value = data.nama_barang),
-            (nama_varian_select.value = data.nama_varian),
-            (nama_campur_select.value = `${data.nama_barang} - ${data.nama_varian} | ${data.stok_global}`),
-            (harga_item_select.value = data.harga_titip_varian),
-            (stok.value = data.stok_global),
-            (qty_select.value = 1),
-            (total_harga_select.value = data.harga_titip_varian);
-        })
-        .catch((error) => {
-          throw new Error(error);
-        });
-    }
-  } catch (error) {
-    alert("Gagal pilih barang" + error);
-  }
-});
-
-watch(qty_select, async (newValue) => {
-  const qty = newValue;
-  const harga_item_select_now = harga_item_select.value;
-  try {
-    if (newValue === "") {
-      alert("Minimal Qty harus 1");
-      qty_select.value = 1;
-    } else {
-      total_harga_select.value = +harga_item_select_now * +qty;
-    }
-  } catch (error) {
-    alert("Gagal wtch qty" + error);
-  }
-});
-
-watch(total_bayar_global, async (newValue, oldValue) => {
-  const total_bayar_global_now = newValue;
-  const total_harga_global_now = total_harga_global.value;
-  try {
-    if (newValue === "" || newValue < 0) {
-      alert("Total Bayar tidak boleh kosong atau minus");
-      total_bayar_global.value = oldValue;
-    } else {
-      kembalian.value = total_bayar_global_now - total_harga_global_now;
-    }
-  } catch (error) {
-    alert("Gagal wtch total_bayar_globl" + error);
-  }
-});
-
-watch(total_harga_global, async (newValue, oldValue) => {
-  const total_bayar_global_now = total_bayar_global.value;
-  const total_harga_global_now = newValue;
-  try {
-    if (newValue === "" || newValue < 0) {
-      alert("Total Harga tidak boleh kosong atau minus");
-      total_harga_global.value = oldValue;
-    } else {
-      kembalian.value = total_bayar_global_now - total_harga_global_now;
-    }
-  } catch (error) {
-    alert("Gagal wtch total_harga_globl" + error);
-  }
-});
 
 watch(filter, async () => {
   try {
     onFilter();
   } catch (error) {
     alert("Gagal wtch filter" + error);
+  }
+});
+
+watch(endDate, async (newValue, oldValue) => {
+  try {
+    if (newValue !== "") {
+      Penitipan.updatePeriode(newValue, no_invoice.value)
+        .then((data) => {
+          total_harga_global.value = parseFloat(data);
+        })
+        .catch((error) => {
+          throw new Error(error);
+        });
+    }
+  } catch (error) {
+    alert("Gagal wtch endDate" + error);
   }
 });
 
@@ -1003,12 +869,17 @@ const initTabulator = () => {
           Penitipan.readDetail(penitipan.no_invoice)
             .then(() => {
               no_invoice.value = penitipan.no_invoice;
-              waktu.value = penitipan.tanggal_penitipan;
+              startDate.value =
+                cell.getData().tanggal_penitipan == null
+                  ? ""
+                  : moment(cell.getData().tanggal_penitipan).format(
+                      "YYYY-MM-DD"
+                    );
+              endDate.value =
+                cell.getData().tanggal_diambil == null
+                  ? ""
+                  : moment(cell.getData().tanggal_diambil).format("YYYY-MM-DD");
               total_harga_global.value = parseFloat(penitipan.total_harga);
-              total_bayar_global.value = parseFloat(
-                penitipan.total_bayar_titip
-              );
-              kembalian.value = parseFloat(penitipan.kembalian_titip);
               isInvoice.value = true;
             })
             .catch((e) => {
@@ -1118,12 +989,19 @@ const initTabulator = () => {
               Penitipan.readDetailPenitipan(penitipan.no_invoice)
                 .then(() => {
                   no_invoice.value = penitipan.no_invoice;
-                  waktu.value = penitipan.tanggal_penitipan;
+                  startDate.value =
+                    cell.getData().tanggal_penitipan == null
+                      ? ""
+                      : moment(cell.getData().tanggal_penitipan).format(
+                          "YYYY-MM-DD"
+                        );
+                  endDate.value =
+                    cell.getData().tanggal_diambil == null
+                      ? ""
+                      : moment(cell.getData().tanggal_diambil).format(
+                          "YYYY-MM-DD"
+                        );
                   total_harga_global.value = parseFloat(penitipan.total_harga);
-                  total_bayar_global.value = parseFloat(
-                    penitipan.total_bayar_titip
-                  );
-                  kembalian.value = parseFloat(penitipan.kembalian_titip);
                   satuan.value =
                     penitipan.id_satuan == null
                       ? "kosong"

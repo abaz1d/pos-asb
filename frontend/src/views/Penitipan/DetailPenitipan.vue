@@ -10,7 +10,7 @@ export default {
   props: {
     detail: { type: Object, required: true },
   },
-  emits: ["openModalRemove", "updateTotalHargaTitip"],
+  emits: ["openModalRemove"],
   data() {
     return {
       id: this.detail.id_detail_titip,
@@ -37,7 +37,7 @@ export default {
           this.no_invoice,
           e
         );
-        this.$emit("updateTotalHargaTitip", data.total_harga_titip);
+        // this.$emit("updateTotalHargaTitip", data.total_harga_titip);
       } catch (error) {
         console.error(error);
       }

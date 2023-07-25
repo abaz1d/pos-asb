@@ -37,7 +37,6 @@ export const usePenitipanStore = defineStore({
       try {
         const { data } = await request.get("penitipan");
         if (data.success) {
-          console.log("suc", data.data.satuan);
           this.rawBarangs = data.data.barang;
           this.rawSatuans = data.data.satuan;
           this.rawPenitipans = data.data.penitipan;
@@ -48,42 +47,50 @@ export const usePenitipanStore = defineStore({
         throw new Error(error);
       }
     },
+    async updatePeriode(tanggal_diambil, no_invoice) {
+      try {
+        const { data } = await request.put(
+          `penitipan/updperiode/${no_invoice}`,
+          { tanggal_diambil }
+        );
+
+        if (data.success) {
+          return data.data[0].total_harga;
+        }
+      } catch (error) {
+        throw new Error(error);
+      }
+    },
     async addPenitipan(
       no_invoice,
-      waktu,
-      total_harga_global,
-      total_bayar_global,
-      kembalian,
-      supplier,
+      tanggal_penitipan,
+      tanggal_diambil,
+      status,
+      total_harga,
       isEdit
     ) {
-      const tanggal_penitipan = waktu;
-      const total_harga_titip = total_harga_global;
-      const total_bayar_titip = total_bayar_global;
       if (!isEdit) {
         this.rawPenitipans.push({
           no_invoice,
           tanggal_penitipan,
-          total_harga_titip,
-          total_bayar_titip,
-          kembalian,
+          tanggal_diambil,
+          status,
+          total_harga,
         });
       }
       try {
-        const { data } = await request.post("penitipan/uptitip", {
-          no_invoice,
-          total_harga_titip,
-          total_bayar_titip,
-          supplier,
-          kembalian,
-        });
-        if (data.success) {
-          this.rawPenitipans = this.rawPenitipans.map((item) => {
-            if (item.no_invoice == no_invoice) {
-              return data.data[0];
-            }
-            return item;
+        if (tanggal_diambil !== "") {
+          const { data } = await request.post("penitipan/uptitip", {
+            tanggal_diambil,
           });
+          if (data.success) {
+            this.rawPenitipans = this.rawPenitipans.map((item) => {
+              if (item.no_invoice == no_invoice) {
+                return data.data[0];
+              }
+              return item;
+            });
+          }
         }
       } catch (error) {
         throw new Error(error);
@@ -95,7 +102,7 @@ export const usePenitipanStore = defineStore({
         (item) => item.no_invoice !== no_invoice
       );
       request
-        .get(`penitipan/delete/${no_invoice}`)
+        .delete(`penitipan/delete/${no_invoice}`)
         .then((res) => {
           if (res.success) {
             return res.success;
@@ -103,16 +110,27 @@ export const usePenitipanStore = defineStore({
         })
         .catch((error) => console.error(error));
     },
-    async addDetailPenitipan(noInvoice, id_varian, qty) {
-      const no_invoice = String(noInvoice);
+    async addDetailPenitipan(
+      no_invoice,
+      id_barang,
+      nama_varian,
+      harga_titip,
+      harga_jual,
+      stok,
+      satuan
+    ) {
       try {
         const { data } = await request.post("penitipan/additem", {
           no_invoice,
-          id_varian,
-          qty,
+          id_barang,
+          nama_varian,
+          harga_titip,
+          harga_jual,
+          stok,
+          satuan,
         });
         if (data.success) {
-          this.readDetailPenitipan(noInvoice);
+          this.readDetailPenitipan(no_invoice);
           return data.data;
         }
       } catch (error) {
