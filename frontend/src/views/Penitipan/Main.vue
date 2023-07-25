@@ -803,10 +803,13 @@ watch(filter, async () => {
 
 watch(endDate, async (newValue, oldValue) => {
   try {
-    if (newValue !== "") {
-      Penitipan.updatePeriode(newValue, no_invoice.value)
+    if (no_invoice.value !== "-") {
+      Penitipan.updatePeriode(
+        newValue == "" ? null : newValue,
+        no_invoice.value
+      )
         .then((data) => {
-          total_harga_global.value = parseFloat(data);
+          total_harga_global.value = parseFloat(data.total_harga);
         })
         .catch((error) => {
           throw new Error(error);
@@ -870,16 +873,15 @@ const initTabulator = () => {
             .then(() => {
               no_invoice.value = penitipan.no_invoice;
               startDate.value =
-                cell.getData().tanggal_penitipan == null
+                penitipan.tanggal_penitipan == null
                   ? ""
-                  : moment(cell.getData().tanggal_penitipan).format(
-                      "YYYY-MM-DD"
-                    );
+                  : moment(penitipan.tanggal_penitipan).format("YYYY-MM-DD");
               endDate.value =
-                cell.getData().tanggal_diambil == null
+                penitipan.tanggal_diambil == null
                   ? ""
-                  : moment(cell.getData().tanggal_diambil).format("YYYY-MM-DD");
+                  : moment(penitipan.tanggal_diambil).format("YYYY-MM-DD");
               total_harga_global.value = parseFloat(penitipan.total_harga);
+              status.value = penitipan.status;
               isInvoice.value = true;
             })
             .catch((e) => {
@@ -990,22 +992,21 @@ const initTabulator = () => {
                 .then(() => {
                   no_invoice.value = penitipan.no_invoice;
                   startDate.value =
-                    cell.getData().tanggal_penitipan == null
+                    penitipan.tanggal_penitipan == null
                       ? ""
-                      : moment(cell.getData().tanggal_penitipan).format(
+                      : moment(penitipan.tanggal_penitipan).format(
                           "YYYY-MM-DD"
                         );
                   endDate.value =
-                    cell.getData().tanggal_diambil == null
+                    penitipan.tanggal_diambil == null
                       ? ""
-                      : moment(cell.getData().tanggal_diambil).format(
-                          "YYYY-MM-DD"
-                        );
+                      : moment(penitipan.tanggal_diambil).format("YYYY-MM-DD");
                   total_harga_global.value = parseFloat(penitipan.total_harga);
                   satuan.value =
                     penitipan.id_satuan == null
                       ? "kosong"
                       : penitipan.id_satuan;
+                  status.value = penitipan.status;
                   isEdit.value = true;
                   modal_utama.value = true;
                 })

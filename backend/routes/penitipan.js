@@ -89,6 +89,10 @@ module.exports = function (db) {
         ]
       );
       console.log(barang.rows[0].id_varian);
+      subvarian = await db.query(
+        "INSERT INTO sub_varian(id_varian, id_outlet, stok_varian) VALUES ($1, $2, $3)",
+        [barang.rows[0].id_varian, req.body.id_outlet, req.body.stok]
+      );
       detail = await db.query(
         "INSERT INTO penitipan_detail(no_invoice, id_varian, qty)VALUES ($1, $2, $3) returning *",
         [req.body.no_invoice, barang.rows[0].id_varian, req.body.stok]
@@ -105,14 +109,8 @@ module.exports = function (db) {
   router.post("/uptitip", async function (req, res, next) {
     try {
       udatetitip = await db.query(
-        "UPDATE penitipan SET id_supplier = $1, total_harga_titip = $2, total_bayar_titip = $3, kembalian_titip = $4 WHERE no_invoice = $5 returning *",
-        [
-          req.body.supplier,
-          req.body.total_harga_titip,
-          req.body.total_bayar_titip,
-          req.body.kembalian,
-          req.body.no_invoice,
-        ]
+        "UPDATE penitipan SET tanggal_diambil = $1 WHERE no_invoice = $2",
+        [req.body.tanggal_diambil, req.body.no_invoice]
       );
       const { rows } = await db.query(
         "SELECT * FROM penitipan WHERE no_invoice = $1",
@@ -120,6 +118,7 @@ module.exports = function (db) {
       );
       res.json(new Response(rows, true));
     } catch (e) {
+      console.error(e);
       res.status(500).json(new Response(e.toString(), false));
     }
   });
@@ -192,7 +191,7 @@ module.exports = function (db) {
         const tanggal_diambil = req.body.tanggal_diambil;
         const id = req.params.no_invoice;
         const { rows } = await db.query(
-          "UPDATE penitipan SET tanggal_diambil = $1 WHERE no_invoice = $2 RETURNING total_harga",
+          "UPDATE penitipan SET tanggal_diambil = $1 WHERE no_invoice = $2 RETURNING *",
           [tanggal_diambil, id]
         );
         res.json(new Response(rows));
@@ -208,19 +207,24 @@ module.exports = function (db) {
     isLoggedIn,
     async function (req, res, next) {
       try {
+        let detail = await db.query(
+          "SELECT id_varian FROM penitipan_detail WHERE id_detail_titip = $1 returning *",
+          [req.params.id_detail_titip]
+        );
+        varian = await db.query("DELETE FROM varian WHERE id_varian = $1", [
+          detail.rows[0].id_varian,
+        ]);
         let delDetail = await db.query(
           "DELETE FROM penitipan_detail WHERE id_detail_titip = $1 returning *",
           [req.params.id_detail_titip]
         );
-        varian = await db.query("DELETE FROM varian WHERE id_varian = $1", [
-          delDetail.rows[0].id_varian,
-        ]);
         const { rows } = await db.query(
           "SELECT SUM(total_harga_detail_titip)  AS total FROM penitipan_detail WHERE no_invoice = $1",
           [req.body.no_invoice]
         );
         res.json(new Response(rows, true));
       } catch (e) {
+        console.error(e);
         res.status(500).json(new Response(e.toString(), false));
       }
     }

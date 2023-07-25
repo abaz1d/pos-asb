@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { request } from "../utils/api";
+import { useAuthStore } from "./auth";
 
 export const usePenitipanStore = defineStore({
   id: "penitipan",
@@ -53,9 +54,14 @@ export const usePenitipanStore = defineStore({
           `penitipan/updperiode/${no_invoice}`,
           { tanggal_diambil }
         );
-
         if (data.success) {
-          return data.data[0].total_harga;
+          this.rawPenitipans = this.rawPenitipans.map((item) => {
+            if (item.no_invoice == no_invoice) {
+              return data.data[0];
+            }
+            return item;
+          });
+          return data.data[0];
         }
       } catch (error) {
         throw new Error(error);
@@ -81,6 +87,7 @@ export const usePenitipanStore = defineStore({
       try {
         if (tanggal_diambil !== "") {
           const { data } = await request.post("penitipan/uptitip", {
+            no_invoice,
             tanggal_diambil,
           });
           if (data.success) {
@@ -120,6 +127,7 @@ export const usePenitipanStore = defineStore({
       satuan
     ) {
       try {
+        const Auth = useAuthStore();
         const { data } = await request.post("penitipan/additem", {
           no_invoice,
           id_barang,
@@ -128,6 +136,7 @@ export const usePenitipanStore = defineStore({
           harga_jual,
           stok,
           satuan,
+          id_outlet: String(Auth.items.id_outlet),
         });
         if (data.success) {
           this.readDetailPenitipan(no_invoice);
