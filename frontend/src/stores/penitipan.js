@@ -55,6 +55,7 @@ export const usePenitipanStore = defineStore({
           { tanggal_diambil }
         );
         if (data.success) {
+          this.readDetailPenitipan(no_invoice);
           this.rawPenitipans = this.rawPenitipans.map((item) => {
             if (item.no_invoice == no_invoice) {
               return data.data[0];
@@ -248,7 +249,10 @@ export const usePenitipanStore = defineStore({
 
     async startTransaction() {
       try {
-        const { data } = await request.post("/penitipan/create");
+        const Auth = useAuthStore();
+        const { data } = await request.post("/penitipan/create", {
+          id_outlet: String(Auth.items.id_outlet),
+        });
         if (data.success) {
           return data.data;
         }

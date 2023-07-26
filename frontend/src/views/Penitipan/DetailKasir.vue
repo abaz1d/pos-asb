@@ -25,16 +25,11 @@
     >
       <p class="text-center text-black">
         {{
-          periode[0] === ""
-            ? "-"
-            : periode[1] === ""
-            ? "-"
-            : moment(periode[1]).diff(periode[0], "days") + " Hari"
-        }}
-        {{
-          moment().diff(periode[1], "days") > 0
-            ? ", Terlambat " + moment().diff(periode[1], "days") + " Hari"
-            : ""
+          startDate === ""
+            ? "Isi tanggal diambil untuk menghitung Total Harga"
+            : endDate === ""
+            ? "Isi tanggal diambil untuk menghitung Total Harga"
+            : moment(endDate).diff(startDate, "days") + " Hari"
         }}
       </p>
     </div>
@@ -67,10 +62,6 @@ export default {
     },
     endDate: {
       type: String,
-      required: true,
-    },
-    periode: {
-      type: Array,
       required: true,
     },
     totalHargaGlobal: {
@@ -137,16 +128,7 @@ export default {
     watch(
       () => props.totalHargaGlobal,
       (newharga) => {
-        if (
-          props.periode.length == 2 &&
-          moment().diff(props.periode[1], "days") > 0
-        ) {
-          let denda = newharga * 0.05 * moment().diff(props.periode[1], "days");
-          totalHargaGlobal.value = newharga + denda;
-          emit("update:kembalian", totalBayarGlobal.value - newharga - denda);
-        } else {
-          totalHargaGlobal.value = newharga;
-        }
+        totalHargaGlobal.value = newharga;
       }
     );
 

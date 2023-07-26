@@ -209,7 +209,6 @@
                   :startDate="startDate"
                   :endDate="endDate"
                   :totalHargaGlobal="total_harga_global"
-                  :periode="periode"
                   @update:startDate="(newValue) => (startDate = newValue)"
                   @update:endDate="(newValue) => (endDate = newValue)"
                 />
@@ -240,9 +239,14 @@
                               ID & Nama Varian
                             </th>
                             <th
-                              class="sticky top-0 whitespace-nowrap bg-slate-200"
+                              class="sticky top-0 whitespace-nowrap bg-slate-200 text-center"
                             >
-                              QTY
+                              Stok
+                            </th>
+                            <th
+                              class="sticky top-0 whitespace-nowrap bg-slate-200 text-center"
+                            >
+                              QTY Terjual
                             </th>
                             <th
                               class="sticky top-0 whitespace-nowrap bg-slate-200"
@@ -649,7 +653,6 @@ const harga_titip = ref(null);
 const harga_jual = ref(null);
 const startDate = ref("");
 const endDate = ref("");
-const periode = ref([]);
 
 // Basic non sticky notification
 const basicNonStickyNotification = ref();
@@ -678,10 +681,14 @@ const onPrintInvoice = () => {
 };
 
 const startTransaction = () => {
-  Penitipan.startTransaction().then((data) => {
-    no_invoice.value = data.no_invoice;
-    startDate.value = data.tanggal_penitipan;
-  });
+  Penitipan.startTransaction()
+    .then((data) => {
+      no_invoice.value = data.no_invoice;
+      startDate.value = moment(data.tanggal_penitipan).format("YYYY-MM-DD");
+    })
+    .catch((e) => {
+      alert("start" + e);
+    });
 };
 
 const addItem = () => {
@@ -786,7 +793,6 @@ const resetModal = () => {
   total_harga_global.value = 0;
   itemDel.value = "";
   Penitipan.rawPenitipanDetail = [];
-  periode.value = [];
   startDate.value = "";
   endDate.value = "";
   harga_titip.value = null;
@@ -803,7 +809,7 @@ watch(filter, async () => {
 
 watch(endDate, async (newValue, oldValue) => {
   try {
-    if (no_invoice.value !== "-") {
+    if (no_invoice.value !== "-" && startDate.value != "") {
       Penitipan.updatePeriode(
         newValue == "" ? null : newValue,
         no_invoice.value

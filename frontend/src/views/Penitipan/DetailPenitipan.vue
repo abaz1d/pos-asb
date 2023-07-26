@@ -75,6 +75,9 @@ export default {
         class="text-success fill-success w-6 h-6 cursor-pointer inline-block"
       />
     </td>
+    <td class="text-center">
+      {{ detail.qty_terjual == null ? 0 : detail.qty_terjual }}
+    </td>
     <td>{{ currencyFormatter.format(detail.harga_detail_titip) }}</td>
     <td>{{ currencyFormatter.format(detail.total_harga_detail_titip) }}</td>
   </tr>

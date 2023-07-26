@@ -53,7 +53,8 @@ module.exports = function (db) {
   router.post("/create", async function (req, res, next) {
     try {
       const { rows } = await db.query(
-        "INSERT INTO penitipan(total_harga_titip) VALUES(0) returning *"
+        "INSERT INTO penitipan(total_harga, id_outlet) VALUES(0, $1) returning *",
+        [req.body.id_outlet]
       );
       res.json(new Response(rows[0], true));
     } catch (e) {
@@ -88,7 +89,6 @@ module.exports = function (db) {
           req.body.harga_jual,
         ]
       );
-      console.log(barang.rows[0].id_varian);
       subvarian = await db.query(
         "INSERT INTO sub_varian(id_varian, id_outlet, stok_varian) VALUES ($1, $2, $3)",
         [barang.rows[0].id_varian, req.body.id_outlet, req.body.stok]
