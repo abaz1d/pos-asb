@@ -215,13 +215,44 @@
               <!-- BEGIN: Display Total Harga -->
               <div class="lg:block hidden mt-2 col-span-4">
                 <div class="intro-y box">
-                  <div class="box flex p-2">
-                    <input
-                      type="text"
-                      class="form-control py-3 px-4 w-full bg-slate-100 border-slate-200/60 pr-10"
-                      placeholder="Use coupon code..."
-                    />
-                    <button class="btn btn-primary ml-2">Apply</button>
+                  <div class="box p-2">
+                    <label for="pos-form-1" class="float-left form-label mb-1"
+                      >Anggota
+                    </label>
+                    <div class="flex w-full">
+                      <TomSelect v-model="anggota" class="w-full" required>
+                        <option value="kosong">
+                          --&gt; Pilih Anggota &lt;--
+                        </option>
+                        <option
+                          v-for="pelanggan in Penjualan.anggotas"
+                          :key="pelanggan.id_pelanggan"
+                          :pelanggan="pelanggan"
+                          :value="pelanggan.id_pelanggan"
+                        >
+                          {{ pelanggan.id_pelanggan }} -
+                          {{ pelanggan.nama_pelanggan }}
+                        </option>
+                      </TomSelect>
+                    </div>
+                    <label
+                      for="pos-form-1"
+                      class="float-left form-label mb-1 mt-4"
+                      >Metode Pembayaran
+                    </label>
+                    <div class="flex w-full">
+                      <select
+                        v-model="metode_pembayaran"
+                        class="w-full rounded-md"
+                        :disabled="anggota == 'kosong'"
+                      >
+                        <option value="kosong" disabled>
+                          --&gt; Pilih Metode &lt;--
+                        </option>
+                        <option value="cash">Tunai / Cash</option>
+                        <option value="paylater">Bayar Nanti / PayLater</option>
+                      </select>
+                    </div>
                   </div>
                   <div class="box p-2 mt-2">
                     <div class="flex">
@@ -381,13 +412,46 @@
                 <ChevronDownIcon class="animate-bounce block mx-auto" />
                 <div class="flex lg:block flex-col-reverse">
                   <div class="intro-y box">
-                    <div class="box flex p-2">
-                      <input
-                        type="text"
-                        class="form-control py-3 px-4 w-full bg-slate-100 border-slate-200/60 pr-10"
-                        placeholder="Use coupon code..."
-                      />
-                      <button class="btn btn-primary ml-2">Apply</button>
+                    <div class="box p-2">
+                      <label for="pos-form-1" class="float-left form-label mb-1"
+                        >Anggota
+                      </label>
+                      <div class="flex w-full">
+                        <TomSelect v-model="anggota" class="w-full" required>
+                          <option value="kosong">
+                            --&gt; Pilih Anggota &lt;--
+                          </option>
+                          <option
+                            v-for="pelanggan in Penjualan.anggotas"
+                            :key="pelanggan.id_pelanggan"
+                            :pelanggan="pelanggan"
+                            :value="pelanggan.id_pelanggan"
+                          >
+                            {{ pelanggan.id_pelanggan }} -
+                            {{ pelanggan.nama_pelanggan }}
+                          </option>
+                        </TomSelect>
+                      </div>
+                      <label
+                        for="pos-form-1"
+                        class="float-left form-label mb-1 mt-4"
+                        >Metode Pembayaran
+                      </label>
+                      <div class="flex w-full">
+                        <select
+                          v-model="metode_pembayaran"
+                          class="w-full rounded-md"
+                          :disabled="anggota == 'kosong'"
+                        >
+                          <option value="kosong" disabled>
+                            --&gt; Pilih Metode &lt;--
+                          </option>
+                          <option value="cash">Tunai / Cash</option>
+                          <option value="paylater">
+                            Bayar Nanti / PayLater
+                          </option>
+                        </select>
+                      </div>
                     </div>
                     <div class="box p-2 mt-2">
                       <div class="flex">
@@ -763,6 +827,8 @@ const total_harga_select = ref(0);
 const total_harga_global = ref(0);
 const total_bayar_global = ref(0);
 const kembalian = ref(0);
+const anggota = ref("kosong");
+const metode_pembayaran = ref("cash");
 
 const itemDel = ref("");
 const auth = ref();
@@ -854,6 +920,8 @@ const simpanPenjualan = () => {
       total_harga_global_now,
       total_bayar_global_now,
       kembalian_now,
+      anggota.value,
+      metode_pembayaran.value,
       isEdit.value
     )
       .then(() => {
@@ -899,6 +967,8 @@ const resetModal = () => {
   no_invoice.value = "-";
   waktu.value = "";
   item_select.value = "kosong";
+  anggota.value = "kosong";
+  metode_pembayaran.value = "cash";
   stok.value = 0;
   nama_barang_select.value = "-";
   nama_varian_select.value = "-";
@@ -984,6 +1054,11 @@ watch(total_harga_global, async (newValue, oldValue) => {
   }
 });
 
+watch(anggota, async (newValue) => {
+  if (newValue == "kosong") {
+    metode_pembayaran.value = "cash";
+  }
+});
 watch(filter, async () => {
   try {
     onFilter();
@@ -1054,7 +1129,11 @@ const initTabulator = () => {
               total_harga_global.value = parseFloat(penjualan.total_harga_jual);
               total_bayar_global.value = parseFloat(penjualan.total_bayar_jual);
               kembalian.value = parseFloat(penjualan.kembalian_jual);
-
+              anggota.value =
+                penjualan.id_pelanggan == null
+                  ? "kosong"
+                  : penjualan.id_pelanggan;
+              metode_pembayaran.value = penjualan.metode_pembayaran;
               isInvoice.value = true;
             })
             .catch((e) => {
@@ -1187,6 +1266,11 @@ const initTabulator = () => {
                     penjualan.total_bayar_jual
                   );
                   kembalian.value = parseFloat(penjualan.kembalian_jual);
+                  anggota.value =
+                    penjualan.id_pelanggan == null
+                      ? "kosong"
+                      : penjualan.id_pelanggan;
+                  metode_pembayaran.value = penjualan.metode_pembayaran;
                   isEdit.value = true;
                   modal_utama.value = true;
                 })

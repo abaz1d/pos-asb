@@ -27,6 +27,10 @@ module.exports = function (db) {
         "SELECT sv.*,v.nama_varian, b.id_barang, b.nama_barang FROM sub_varian as sv LEFT JOIN varian v ON sv.id_varian = v.id_varian LEFT JOIN barang as b ON v.id_barang = b.id_barang WHERE sv.id_outlet = $1 ORDER BY b.id_barang",
         [id_outlet]
       );
+      const anggota = await db.query(
+        "SELECT id_pelanggan, nama_pelanggan FROM pelanggan WHERE id_outlet = $1 ORDER BY id_pelanggan ASC",
+        [id_outlet]
+      );
       const print = await db.query(
         "SELECT dp.*,pe.*, v.nama_varian, b.nama_barang FROM penjualan_detail as dp LEFT JOIN varian as v ON dp.id_varian = v.id_varian LEFT JOIN barang as b ON b.id_barang = v.id_barang LEFT JOIN penjualan as pe ON dp.no_invoice = pe.no_invoice WHERE dp.no_invoice = $1",
         [noInvoice]
@@ -36,6 +40,7 @@ module.exports = function (db) {
           penjualan: rows,
           details: details.rows,
           varian: varian.rows,
+          anggota: anggota.rows,
           print,
         })
       );
@@ -106,14 +111,17 @@ module.exports = function (db) {
   router.post("/upjual", async function (req, res, next) {
     try {
       udatejual = await db.query(
-        "UPDATE penjualan SET total_harga_jual = $1, total_bayar_jual = $2, kembalian_jual = $3 WHERE no_invoice = $4 returning *",
+        "UPDATE penjualan SET total_harga_jual = $1, total_bayar_jual = $2, kembalian_jual = $3, id_pelanggan = $4, metode_pembayaran = $5 WHERE no_invoice = $6 returning *",
         [
           req.body.total_harga_jual,
           req.body.total_bayar_jual,
           req.body.kembalian,
+          req.body.id_pelanggan == "kosong" ? null : req.body.id_pelanggan,
+          req.body.metode_pembayaran,
           req.body.no_invoice,
         ]
       );
+      console.log(req.body.metode_pembayaran);
       const { rows } = await db.query(
         "SELECT * FROM penjualan WHERE no_invoice = $1",
         [req.body.no_invoice]

@@ -6,6 +6,7 @@ export const usePenjualanStore = defineStore({
   id: "penjualan",
   state: () => ({
     rawVarians: [],
+    rawAnggotas: [],
     rawPenjualans: [],
     rawDetails: [],
     rawPrints: [],
@@ -15,6 +16,7 @@ export const usePenjualanStore = defineStore({
   }),
   getters: {
     varians: (state) => state.rawVarians,
+    anggotas: (state) => state.rawAnggotas,
     penjualans: (state) => state.rawPenjualans,
     details: (state) => state.rawDetails,
     prints: (state) => state.rawPrints,
@@ -52,6 +54,7 @@ export const usePenjualanStore = defineStore({
         );
         if (data.success) {
           this.rawVarians = data.data.varian;
+          this.rawAnggotas = data.data.anggota;
           this.rawPenjualans = data.data.penjualan;
           this.rawDetails = data.data.details;
           return this.rawPenjualans;
@@ -66,6 +69,8 @@ export const usePenjualanStore = defineStore({
       total_harga_global,
       total_bayar_global,
       kembalian,
+      id_pelanggan,
+      metode_pembayaran,
       isEdit
     ) {
       const tanggal_penjualan = waktu;
@@ -78,6 +83,8 @@ export const usePenjualanStore = defineStore({
           total_harga_jual,
           total_bayar_jual,
           kembalian,
+          id_pelanggan,
+          metode_pembayaran,
         });
       }
       try {
@@ -86,6 +93,8 @@ export const usePenjualanStore = defineStore({
           total_harga_jual,
           total_bayar_jual,
           kembalian,
+          id_pelanggan,
+          metode_pembayaran,
         });
         if (data.success) {
           this.rawPenjualans = this.rawPenjualans.map((item) => {

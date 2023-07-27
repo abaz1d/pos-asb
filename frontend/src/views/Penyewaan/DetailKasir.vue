@@ -1,7 +1,7 @@
 <template>
-  <div class="intro-y box">
+  <div class="intro-y box mt-2 p-2">
     <label for="pos-form-1" class="form-label px-2 -mb-2">Periode</label>
-    <div class="box flex p-2 items-center">
+    <div class="box flex px-1 items-center mb-3">
       <input
         ref="startDateInput"
         id="startDateInput"
@@ -19,20 +19,35 @@
         placeholder="Selesai"
       />
     </div>
+    <label for="pos-form-1" class="form-label px-2 -mb-2"
+      >Tgl Pengembalian</label
+    >
+    <div class="box px-1 flex mb-2 items-center">
+      <input
+        ref="tgKembaliInput"
+        id="tgKembaliInput"
+        type="date"
+        v-model="tgl_kembali"
+        class="form-control mr-1 px-1"
+        placeholder="MuKembalilai"
+      />
+    </div>
     <div
-      class="box flex p-2 items-center justify-center mx-2 bg-slate-200 rounded-md"
+      class="box flex p-2 items-center justify-center mx-1 bg-slate-200 rounded-md"
     >
       <p class="text-center text-black">
         {{
-          periode[0] === ""
+          (periode ? periode[0] : "") === ""
             ? "-"
-            : periode[1] === ""
+            : (periode ? periode[1] : "") === ""
             ? "-"
             : moment(periode[1]).diff(periode[0], "days") + " Hari"
         }}
         {{
-          moment().diff(periode[1], "days") > 0
-            ? ", Terlambat " + moment().diff(periode[1], "days") + " Hari"
+          moment(tgl_kembali).diff(periode ? periode[1] : "", "days") > 0
+            ? ", Terlambat " +
+              moment(tgl_kembali).diff(periode ? periode[1] : "", "days") +
+              " Hari"
             : ""
         }}
       </p>
@@ -91,12 +106,17 @@ import moment from "moment";
 
 export default {
   emits: [
+    "update:tgl_kembali",
     "update:startDate",
     "update:endDate",
     "update:totalBayarGlobal",
     "update:kembalian",
   ],
   props: {
+    tgl_kembali: {
+      type: String,
+      required: true,
+    },
     startDate: {
       type: String,
       required: true,
@@ -129,6 +149,7 @@ export default {
     };
   },
   setup(props) {
+    const tgl_kembali = ref(props.tgl_kembali);
     const startDate = ref(props.startDate);
     const endDate = ref(props.endDate);
     const periode = ref(props.periode);
@@ -142,6 +163,12 @@ export default {
     }
 
     watch(
+      () => tgl_kembali.value,
+      (newTgl) => {
+        emit("update:tgl_kembali", newTgl);
+      }
+    );
+    watch(
       () => startDate.value,
       (newStartDate) => {
         emit("update:startDate", newStartDate);
@@ -151,6 +178,12 @@ export default {
       () => endDate.value,
       (newEndDate) => {
         emit("update:endDate", newEndDate);
+      }
+    );
+    watch(
+      () => props.tgl_kembali,
+      (newTgl) => {
+        tgl_kembali.value = newTgl;
       }
     );
     watch(
@@ -181,20 +214,21 @@ export default {
     watch(
       () => props.totalHargaGlobal,
       (newharga) => {
-        if (
-          props.periode.length == 2 &&
-          moment().diff(props.periode[1], "days") > 0
-        ) {
-          let denda = newharga * 0.05 * moment().diff(props.periode[1], "days");
-          totalHargaGlobal.value = newharga + denda;
-          emit("update:kembalian", totalBayarGlobal.value - newharga - denda);
-        } else {
-          totalHargaGlobal.value = newharga;
-        }
+        // if (
+        //   props.periode.length == 2 &&
+        //   moment().diff(props.periode[1], "days") > 0
+        // ) {
+        //   let denda = newharga * 0.05 * moment().diff(props.periode[1], "days");
+        //   totalHargaGlobal.value = newharga + denda;
+        //   emit("update:kembalian", totalBayarGlobal.value - newharga - denda);
+        // } else {
+        totalHargaGlobal.value = newharga;
+        // }
       }
     );
 
     return {
+      tgl_kembali,
       startDate,
       moment,
       endDate,

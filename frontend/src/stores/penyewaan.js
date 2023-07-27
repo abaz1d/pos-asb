@@ -6,6 +6,7 @@ export const usePenyewaanStore = defineStore({
   id: "penyewaan",
   state: () => ({
     rawVarians: [],
+    rawAnggotas: [],
     rawPenyewaans: [],
     rawDetails: [],
     rawPrints: [],
@@ -15,6 +16,7 @@ export const usePenyewaanStore = defineStore({
   }),
   getters: {
     varians: (state) => state.rawVarians,
+    anggotas: (state) => state.rawAnggotas,
     penyewaans: (state) => state.rawPenyewaans,
     details: (state) => state.rawDetails,
     prints: (state) => state.rawPrints,
@@ -52,6 +54,7 @@ export const usePenyewaanStore = defineStore({
         );
         if (data.success) {
           this.rawVarians = data.data.varian;
+          this.rawAnggotas = data.data.anggota;
           this.rawPenyewaans = data.data.penyewaan;
           this.rawDetails = data.data.details;
           return this.rawPenyewaans;
@@ -73,6 +76,9 @@ export const usePenyewaanStore = defineStore({
       gambar_lama_jaminan,
       gambar_lama_penyerahan,
       gambar_lama_pengembalian,
+      tgl_kembali,
+      id_pelanggan,
+      metode_pembayaran,
       isEdit
     ) {
       const total_harga_sewa = total_harga_global;
@@ -83,11 +89,12 @@ export const usePenyewaanStore = defineStore({
       formData.append("total_harga", total_harga_global);
       formData.append("total_bayar", total_bayar_global);
       formData.append("kembalian", kembalian);
+      formData.append("id_pelanggan", id_pelanggan);
+      formData.append("metode_pembayaran", metode_pembayaran);
       formData.append("status", status);
       formData.append("file_jaminan", file_jaminan);
       formData.append("file_penyerahan", file_penyerahan);
       formData.append("file_pengembalian", file_pengembalian);
-      console.log(gambar_lama_jaminan);
       if (gambar_lama_jaminan != null) {
         formData.append(
           "gambar_lama_jaminan",
@@ -124,6 +131,8 @@ export const usePenyewaanStore = defineStore({
           total_harga_sewa,
           total_bayar_sewa,
           kembalian,
+          id_pelanggan,
+          metode_pembayaran,
           status,
         });
       }

@@ -443,17 +443,61 @@
 
               <!-- BEGIN: Display Total Harga -->
               <div class="lg:block hidden mt-2 col-span-4">
+                <div class="box px-2">
+                  <label for="pos-form-1" class="float-left form-label mb-1"
+                    >Anggota
+                  </label>
+                  <div class="flex w-full">
+                    <TomSelect v-model="anggota" class="w-full" required>
+                      <option value="kosong">
+                        --&gt; Pilih Anggota &lt;--
+                      </option>
+                      <option
+                        v-for="pelanggan in Penyewaan.anggotas"
+                        :key="pelanggan.id_pelanggan"
+                        :pelanggan="pelanggan"
+                        :value="pelanggan.id_pelanggan"
+                      >
+                        {{ pelanggan.id_pelanggan }} -
+                        {{ pelanggan.nama_pelanggan }}
+                      </option>
+                    </TomSelect>
+                  </div>
+                  <label
+                    for="pos-form-1"
+                    class="float-left form-label mb-1 mt-2"
+                    >Metode Pembayaran
+                  </label>
+                  <div class="flex w-full">
+                    <select
+                      v-model="metode_pembayaran"
+                      class="w-full rounded-md"
+                      :disabled="anggota == 'kosong'"
+                    >
+                      <option value="kosong" disabled>
+                        --&gt; Pilih Metode &lt;--
+                      </option>
+                      <option value="cash">Tunai / Cash</option>
+                      <option value="paylater">Bayar Nanti / PayLater</option>
+                    </select>
+                  </div>
+                </div>
                 <DetailKasir
                   :startDate="startDate"
                   :endDate="endDate"
                   :totalHargaGlobal="total_harga_global"
                   :totalBayarGlobal="total_bayar_global"
                   :kembalian="kembalian"
+                  :tgl_kembali="tgl_kembali"
                   :periode="periode"
+                  @update:tgl_kembali="(newValue) => (tgl_kembali = newValue)"
                   @update:startDate="(newValue) => (startDate = newValue)"
                   @update:endDate="(newValue) => (endDate = newValue)"
                   @update:totalBayarGlobal="
                     (newValue) => (total_bayar_global = parseInt(newValue))
+                  "
+                  @update:kembalian="
+                    (newValue) => (kembalian = parseInt(newValue))
                   "
                 />
               </div>
@@ -567,13 +611,54 @@
               >
                 <ChevronDownIcon class="animate-bounce block mx-auto" />
                 <div class="flex lg:block flex-col-reverse">
+                  <div class="box p-2">
+                    <label for="pos-form-1" class="float-left form-label mb-1"
+                      >Anggota
+                    </label>
+                    <div class="flex w-full">
+                      <TomSelect v-model="anggota" class="w-full" required>
+                        <option value="kosong">
+                          --&gt; Pilih Anggota &lt;--
+                        </option>
+                        <option
+                          v-for="pelanggan in Penyewaan.anggotas"
+                          :key="pelanggan.id_pelanggan"
+                          :pelanggan="pelanggan"
+                          :value="pelanggan.id_pelanggan"
+                        >
+                          {{ pelanggan.id_pelanggan }} -
+                          {{ pelanggan.nama_pelanggan }}
+                        </option>
+                      </TomSelect>
+                    </div>
+                    <label
+                      for="pos-form-1"
+                      class="float-left form-label mb-1 mt-4"
+                      >Metode Pembayaran
+                    </label>
+                    <div class="flex w-full">
+                      <select
+                        v-model="metode_pembayaran"
+                        class="w-full rounded-md"
+                        :disabled="anggota == 'kosong'"
+                      >
+                        <option value="kosong" disabled>
+                          --&gt; Pilih Metode &lt;--
+                        </option>
+                        <option value="cash">Tunai / Cash</option>
+                        <option value="paylater">Bayar Nanti / PayLater</option>
+                      </select>
+                    </div>
+                  </div>
                   <DetailKasir
                     :startDate="startDate"
                     :endDate="endDate"
                     :totalHargaGlobal="total_harga_global"
                     :totalBayarGlobal="total_bayar_global"
                     :kembalian="kembalian"
+                    :tgl_kembali="tgl_kembali"
                     :periode="periode"
+                    @update:tgl_kembali="(newValue) => (tgl_kembali = newValue)"
                     @update:startDate="(newValue) => (startDate = newValue)"
                     @update:endDate="(newValue) => (endDate = newValue)"
                     @update:totalBayarGlobal="
@@ -601,9 +686,6 @@
             type="button"
             @click="simpanPenyewaan()"
             class="object-left btn btn-primary w-32"
-            :disabled="
-              total_bayar_global == 0 || total_bayar_global < total_harga_global
-            "
           >
             Simpan
           </button>
@@ -915,6 +997,7 @@ const kembalian = ref(0);
 
 const itemDel = ref("");
 const auth = ref();
+const tgl_kembali = ref("");
 const startDate = ref("");
 const endDate = ref("");
 const url_jaminan = ref(null);
@@ -930,6 +1013,8 @@ const gambar_lama_penyerahan = ref("");
 const gambar_lama_penyerahan_preview = ref("");
 const gambar_lama_pengembalian = ref("");
 const gambar_lama_pengembalian_preview = ref("");
+const anggota = ref("kosong");
+const metode_pembayaran = ref("cash");
 
 // Basic non sticky notification
 const basicNonStickyNotification = ref();
@@ -1054,10 +1139,7 @@ const simpanPenyewaan = () => {
   const total_harga_global_now = total_harga_global.value;
   const total_bayar_global_now = total_bayar_global.value;
   const kembalian_now = kembalian.value;
-  if (
-    Penyewaan.penyewaanDetail.length !== 0 &&
-    total_bayar_global.value >= total_harga_global.value
-  ) {
+  if (Penyewaan.penyewaanDetail.length !== 0) {
     Penyewaan.addPenyewaan(
       no_invoice_now,
       periode.value,
@@ -1071,6 +1153,9 @@ const simpanPenyewaan = () => {
       gambar_lama_jaminan.value,
       gambar_lama_penyerahan.value,
       gambar_lama_pengembalian.value,
+      tgl_kembali.value,
+      anggota.value,
+      metode_pembayaran.value,
       isEdit.value
     )
       .then(() => {
@@ -1129,6 +1214,7 @@ const resetModal = () => {
   kembalian.value = 0;
   itemDel.value = "";
   Penyewaan.rawPenyewaanDetail = [];
+  tgl_kembali.value = "";
   startDate.value = "";
   endDate.value = "";
   url_jaminan.value = null;
@@ -1137,6 +1223,8 @@ const resetModal = () => {
   file_penyerahan.value = null;
   url_pengembalian.value = null;
   file_pengembalian.value = null;
+  anggota.value = "kosong";
+  metode_pembayaran.value = "cash";
 
   gambar_lama_jaminan.value = "";
   gambar_lama_jaminan_preview.value = "";
@@ -1239,6 +1327,7 @@ watch(endDate, async (newValue, oldValue) => {
 watch(periode, async (newValue, oldValue) => {
   try {
     if (
+      oldValue &&
       oldValue.length !== 0 &&
       newValue.length === 2 &&
       newValue[0] !== "" &&
@@ -1247,7 +1336,7 @@ watch(periode, async (newValue, oldValue) => {
     ) {
       Penyewaan.updatePeriode(newValue, no_invoice.value)
         .then((data) => {
-          total_harga_global.value = parseFloat(data);
+          total_harga_global.value = parseFloat(data == null ? 0 : data);
         })
         .catch((error) => {
           throw new Error(error);
@@ -1255,6 +1344,11 @@ watch(periode, async (newValue, oldValue) => {
     }
   } catch (error) {
     alert("Gagal wtch periode" + error);
+  }
+});
+watch(anggota, async (newValue) => {
+  if (newValue == "kosong") {
+    metode_pembayaran.value = "cash";
   }
 });
 watch(filter, async () => {
@@ -1266,7 +1360,7 @@ watch(filter, async () => {
 });
 
 const lamaPeriode = (periode) => {
-  if (periode.length === 2) {
+  if (periode && periode.length === 2) {
     const tanggalAwal = moment(periode[0]);
     const tanggalAkhir = moment(periode[1]);
 
@@ -1344,11 +1438,24 @@ const initTabulator = () => {
           Penyewaan.readDetail(penyewaan.no_invoice)
             .then((data) => {
               no_invoice.value = penyewaan.no_invoice;
-              startDate.value = data[0].periode[0];
-              endDate.value = data[0].periode[1];
-              total_harga_global.value = parseFloat(data[0].total_harga);
-              total_bayar_global.value = parseFloat(data[0].total_bayar);
-              kembalian.value = parseFloat(data[0].kembalian);
+              startDate.value = data[0].periode ? data[0].periode[0] : "";
+              endDate.value = data[0].periode ? data[0].periode[1] : "";
+              total_harga_global.value = parseFloat(
+                data[0] == null ? data[0].total_harga : data[0].total_harga
+              );
+              total_bayar_global.value = parseFloat(
+                data[0] == null ? data[0].total_bayar : data[0].total_bayar
+              );
+              kembalian.value = parseFloat(
+                data[0] == null ? data[0].kembalian : data[0].kembalian
+              );
+
+              tgl_kembali.value = moment(data[0].tgl_kembali).format(
+                "YYYY-MM-DD"
+              );
+              anggota.value =
+                data[0].id_pelanggan == null ? "kosong" : data[0].id_pelanggan;
+              metode_pembayaran.value = data[0].metode_pembayaran;
 
               isInvoice.value = true;
             })
@@ -1385,9 +1492,11 @@ const initTabulator = () => {
         download: false,
         formatter(cell) {
           return `<div>
-                <div class="font-medium whitespace-nowrap">${moment(
-                  cell.getData().periode[0]
-                ).format("DD MMM YYYY")}</div>
+                <div class="font-medium whitespace-nowrap">${
+                  cell.getData().periode
+                    ? moment(cell.getData().periode[0]).format("DD MMM YYYY")
+                    : "-"
+                }</div>
               </div>`;
         },
       },
@@ -1407,11 +1516,15 @@ const initTabulator = () => {
             ${lamaPeriode(cell.getData().periode)}
             </kbd>
           </div>
-          <div class=" whitespace-nowrap">${moment(
-            cell.getData().periode[0]
-          ).format("DD MMM YYYY")} - ${moment(cell.getData().periode[1]).format(
-            "DD MMM YYYY"
-          )}</div>
+          <div class=" whitespace-nowrap">${
+            cell.getData().periode
+              ? moment(cell.getData().periode[0]).format("DD MMM YYYY")
+              : ""
+          } - ${
+            cell.getData().periode
+              ? moment(cell.getData().periode[1]).format("DD MMM YYYY")
+              : ""
+          }</div>
         </div>`;
         },
       },
@@ -1482,12 +1595,29 @@ const initTabulator = () => {
                 .then(() => {
                   no_invoice.value = penyewaan.no_invoice;
                   status.value = penyewaan.status;
-                  startDate.value = penyewaan.periode[0];
-                  endDate.value = penyewaan.periode[1];
-                  periode.value = penyewaan.periode;
-                  total_harga_global.value = parseFloat(penyewaan.total_harga);
-                  total_bayar_global.value = parseFloat(penyewaan.total_bayar);
-                  kembalian.value = parseFloat(penyewaan.kembalian);
+                  startDate.value = penyewaan.periode
+                    ? penyewaan.periode[0]
+                    : "";
+                  endDate.value = penyewaan.periode ? penyewaan.periode[1] : "";
+                  periode.value = penyewaan.periode.total_harga_global;
+                  total_harga_global.value = parseFloat(
+                    penyewaan.total_harga == null ? 0 : penyewaan.total_harga
+                  );
+                  total_bayar_global.value = parseFloat(
+                    penyewaan.total_bayar == null ? 0 : penyewaan.total_bayar
+                  );
+                  kembalian.value = parseFloat(
+                    penyewaan.kembalian == null ? 0 : penyewaan.kembalian
+                  );
+                  tgl_kembali.value =
+                    penyewaan.tgl_kembali == null
+                      ? ""
+                      : moment(penyewaan.tgl_kembali).format("YYYY-MM-DD");
+                  anggota.value =
+                    penyewaan.id_pelanggan == null
+                      ? "kosong"
+                      : penyewaan.id_pelanggan;
+                  metode_pembayaran.value = penyewaan.metode_pembayaran;
                   gambar_lama_jaminan.value = penyewaan.jaminan;
                   gambar_lama_penyerahan.value = penyewaan.bukti_penyerahan;
                   gambar_lama_pengembalian.value = penyewaan.bukti_pengembalian;
@@ -1498,6 +1628,7 @@ const initTabulator = () => {
                   modal_utama.value = true;
                 })
                 .catch((e) => {
+                  console.error(e);
                   alert("gagal open edit" + e);
                 });
             } else {
@@ -1540,11 +1671,15 @@ const initTabulator = () => {
         download: true,
         formatter(cell) {
           return `<div>
-            <div class="font-medium whitespace-nowrap">${moment(
-              cell.getData().periode[0]
-            ).format("DD MMM YYYY")} - ${moment(
-            cell.getData().periode[1]
-          ).format("DD MMM YYYY")}</div>
+            <div class="font-medium whitespace-nowrap">${
+              cell.getData().periode
+                ? moment(cell.getData().periode[0]).format("DD MMM YYYY")
+                : ""
+            } - ${
+            cell.getData().periode
+              ? moment(cell.getData().periode[1]).format("DD MMM YYYY")
+              : ""
+          }</div>
               </div>`;
         },
       },

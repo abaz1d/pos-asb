@@ -260,6 +260,7 @@ const onLogin = () => {
         isLoading.value = false;
       })
       .catch((error) => {
+        console.error(error);
         alert("Gagal Login " + JSON.stringify(error));
         isLoading.value = false;
       });
