@@ -77,9 +77,6 @@ module.exports = function (db) {
       let uploadPath;
       if (!req.files || Object.keys(req.files).length === 0) {
         console.log("No files to upload");
-        // return res
-        //   .status(400)
-        //   .json(new Response({ message: "No files were uploaded." }, false));
         db.query(
           `WITH inserted AS (INSERT INTO varian(nama_varian, id_barang,
             stok_global, harga_beli_varian, id_satuan,
