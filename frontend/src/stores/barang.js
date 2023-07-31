@@ -44,14 +44,14 @@ export const useBarangStore = defineStore({
       const id_barang = Date.now();
       this.rawItems.push({ id_barang, nama_barang });
       try {
-        const { data } = await request.post("barang/addbarang", {
+        const { data } = await request.put("barang/addbarang", {
           nama_barang,
         });
         if (data.success) {
           this.rawItems = this.rawItems.map((item) => {
             if (item.id_barang === id_barang) {
-              this.readVarian(data.data.data.id_barang);
-              return data.data.data;
+              this.readVarian(data.id_barang);
+              return data;
             }
             return item;
           });

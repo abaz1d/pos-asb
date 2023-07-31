@@ -21,9 +21,17 @@ const { pool } = require("./helpers/util");
 // })
 pool.connect((err) => {
   if (err) {
-    console.log("e database", err);
+    console.log("err database", err);
+  } else {
+    console.log(
+      "Connect DB successfully",
+      process.env.DB_USER,
+      process.env.DB_HOST,
+      process.env.DB_NAME,
+      process.env.DB_PASS,
+      process.env.DB_PORT
+    );
   }
-  console.log("Connect DB successfully");
 });
 
 var allowCrossDomain = function (req, res, next) {

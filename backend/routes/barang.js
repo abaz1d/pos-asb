@@ -592,7 +592,7 @@ module.exports = function (db) {
         [req.body.nama_barang]
       );
       let data = rows[0];
-      res.json(new Response({ data }));
+      res.json(new Response(data));
     } catch (error) {
       res.status(500).json(new Response(e, false));
     }
@@ -611,16 +611,16 @@ module.exports = function (db) {
     );
   });
 
-  router.post("/editbar/:id", async function (req, res) {
+  router.put("/editbar/:id", async function (req, res) {
     try {
       const { rows } = await db.query(
         `UPDATE barang set
       nama_barang = $1
-      WHERE id_barang = $2`,
+      WHERE id_barang = $2 RETURNING *`,
         [req.body.nama_barang, req.params.id]
       );
       let data = rows[0];
-      res.json(new Response({ data }));
+      res.json(new Response(data));
     } catch (error) {
       res.status(500).json(new Response(e, false));
     }
@@ -629,7 +629,7 @@ module.exports = function (db) {
   router.delete("/deletebar/:id", isLoggedIn, async function (req, res, next) {
     try {
       const { rows } = await db.query(
-        "DELETE FROM barang WHERE id_barang = $1",
+        "DELETE FROM barang WHERE id_barang = $1 RETURNING *",
         [req.params.id]
       );
       res.json(new Response({ message: "delete barang success" }, true));
