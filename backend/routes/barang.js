@@ -629,7 +629,7 @@ module.exports = function (db) {
   router.delete("/deletebar/:id", isLoggedIn, async function (req, res, next) {
     try {
       const { rows } = await db.query(
-        "DELETE FROM barang WHERE id_barang = $1 RETURNING *",
+        "DELETE FROM barang WHERE id_barang = $1",
         [req.params.id]
       );
       res.json(new Response({ message: "delete barang success" }, true));
